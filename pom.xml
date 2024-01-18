@@ -178,7 +178,7 @@
 					<from><image>eclipse-temurin:17-jre@sha256:4d1030a58659e0fdd77bf0880f28095344f37785d020527340caf937c49e3098</image></from>
 					<container>
 						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
-						<mainClass>it.cnr.anac.transparency.result.TransparencyResultApplication</mainClass>
+						<mainClass>it.cnr.anac.transparency.result.TransparencyResultServiceApplication</mainClass>
 					</container>
 				</configuration>
 			</plugin>
