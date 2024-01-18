@@ -1,0 +1,33 @@
+CREATE TABLE IF NOT EXISTS results (
+    id BIGSERIAL PRIMARY KEY,
+    id_ipa INT,
+    codice_ipa TEXT UNIQUE,
+    denominazione_ente TEXT NOT NULL,
+    codice_fiscale_ente TEXT,
+    tipologia TEXT,
+    codice_categoria TEXT,
+    codice_natura TEXT,
+    acronimo TEXT,
+    sito_istituzionale TEXT,
+    sorgente TEXT,
+	
+    real_url TEXT,
+    object_bucket TEXT,
+    object_id TEXT,
+    object_result TEXT,
+    screenshot_bucket TEXT,
+    screenshot_id TEXT,
+    screenshot_result TEXT,
+
+    url TEXT,
+    rule_name TEXT,
+    term TEXT,
+    content TEXT,
+    is_leaf BOOLEAN,
+    status INTEGER,
+    score NUMERIC(10,7),
+    workflow_id TEXT,
+    
+    created_at TIMESTAMP WITHOUT TIME ZONE,
+    updated_at TIMESTAMP WITHOUT TIME ZONE,
+    version INT DEFAULT 0);
