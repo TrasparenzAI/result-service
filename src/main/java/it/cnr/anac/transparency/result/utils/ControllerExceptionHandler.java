@@ -14,30 +14,26 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.result.models;
+package it.cnr.anac.transparency.result.utils;
 
-import java.io.Serializable;
-
-import jakarta.persistence.Embeddable;
-import lombok.Data;
-import lombok.ToString;
+import jakarta.persistence.EntityNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Oggetto che contiene le informazioni sullo storage delle pagine e screenshot prelevate dal
- * web crawler.
+ * Gestione delle eccezioni sollevate nei controller REST.
+ *
  */
-@ToString
-@Data
-@Embeddable
-public class StorageData implements Serializable {
+@RestControllerAdvice
+public class ControllerExceptionHandler {
 
-  private static final long serialVersionUID = 4740036434463012854L;
-
-  private String objectBucket;
-  private String objectId;
-  private String objectResult;
-  private String screenshotBucket;
-  private String screenshotId;
-  private String screenshotResult;
+  @ExceptionHandler(EntityNotFoundException.class)
+  @ResponseStatus(HttpStatus.NOT_FOUND)
+  public ResponseEntity<String> handleOfficeNotFound(RuntimeException ex) {
+    return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+  }
 
 }

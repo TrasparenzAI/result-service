@@ -14,30 +14,28 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.result.models;
+package it.cnr.anac.transparency.result.v1.dto;
 
-import java.io.Serializable;
-
-import jakarta.persistence.Embeddable;
 import lombok.Data;
 import lombok.ToString;
 
 /**
- * Oggetto che contiene le informazioni sullo storage delle pagine e screenshot prelevate dal
- * web crawler.
+ * Data transfer object per le informazioni sulle Company.
+ *
  */
 @ToString
 @Data
-@Embeddable
-public class StorageData implements Serializable {
+public class CompanyShowDto {
 
-  private static final long serialVersionUID = 4740036434463012854L;
-
-  private String objectBucket;
-  private String objectId;
-  private String objectResult;
-  private String screenshotBucket;
-  private String screenshotId;
-  private String screenshotResult;
+  private Long idIpa;
+  private String codiceIpa;
+  private String denominazioneEnte;
+  private String codiceFiscaleEnte;
+  private String tipologia;
+  private String codiceCategoria;
+  private String codiceNatura;
+  private String acronimo;
+  private String sitoIstituzionale;
+  private String sorgente;
 
 }

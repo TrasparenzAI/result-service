@@ -14,30 +14,26 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.result.models;
-
-import java.io.Serializable;
-
-import jakarta.persistence.Embeddable;
-import lombok.Data;
-import lombok.ToString;
+package it.cnr.anac.transparency.result.v1;
 
 /**
- * Oggetto che contiene le informazioni sullo storage delle pagine e screenshot prelevate dal
- * web crawler.
+ * Costanti utili per le definizioni delle rotte delle API.
+ *
  */
-@ToString
-@Data
-@Embeddable
-public class StorageData implements Serializable {
+public class ApiRoutes {
 
-  private static final long serialVersionUID = 4740036434463012854L;
+  private static final String ONLY_DIGITS_REGEX = "^\\d+$";
+  //private static final String ALPHANUMERIC_SPECIALS_REGEX = "^\\d*[a-zA-Z\\W].*$";
 
-  private String objectBucket;
-  private String objectId;
-  private String objectResult;
-  private String screenshotBucket;
-  private String screenshotId;
-  private String screenshotResult;
+  public static final String BASE_PATH = "/v1";
+
+  public static final String ID_REGEX = "{id:" + ONLY_DIGITS_REGEX + "}";
+
+  public static final String LIST = "";
+  public static final String SHOW = "/" + ID_REGEX;
+  public static final String CREATE = "";
+  public static final String UPDATE = "";
+  public static final String PATCH = "/patch/" + ID_REGEX;
+  public static final String DELETE = "/" + ID_REGEX;
 
 }

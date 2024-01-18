@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -14,30 +14,20 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.result.models;
+package it.cnr.anac.transparency.result.v1.dto;
 
-import java.io.Serializable;
-
-import jakarta.persistence.Embeddable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Oggetto che contiene le informazioni sullo storage delle pagine e screenshot prelevate dal
- * web crawler.
+ * Data transfer object per le informazioni relative all'aggiornamento di un Result.
  */
 @ToString
 @Data
-@Embeddable
-public class StorageData implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class ResultUpdateDto extends ResultCreateDto {
 
-  private static final long serialVersionUID = 4740036434463012854L;
-
-  private String objectBucket;
-  private String objectId;
-  private String objectResult;
-  private String screenshotBucket;
-  private String screenshotId;
-  private String screenshotResult;
+  private Long id;
 
 }

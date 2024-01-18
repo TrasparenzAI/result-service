@@ -14,7 +14,8 @@ sulla transparenza.
 
 Transparency Results Service fornisce alcuni servizi REST utilizzabili in produzione per:
 
- - inserire ed aggiornare all'interno del servizio le informazioni di una verifica effettuata su un sito web di una PA
+ - inserire, aggiornare e cancellare all'interno del servizio le informazioni di una verifica 
+   effettuata su un sito web di una PA
  - visualizzare i dati di una verifica su un sito web
  - mostrare la lista delle verifiche effettuate
 
