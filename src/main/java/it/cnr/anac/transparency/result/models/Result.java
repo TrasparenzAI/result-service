@@ -18,6 +18,7 @@ package it.cnr.anac.transparency.result.models;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -57,11 +58,21 @@ public class Result extends MutableModel {
   // false
   private boolean isLeaf;
   // 200
-  private int status;
+  private Integer status;
   // 5.466414
   private BigDecimal score;
 
   // "6d7e4bd7-a890-439d-9dc7-f9f3f515d8b5"
   private String workflowId;
+  // Id del flusso di dettaglio che ha elaborato la richiesta, valore di tipo stringa
+  private String workflowChildId;
+
+  //  Messaggio di errore restituito dal crawler di tipo stringa
+  private String errorMessage;
+  // Lunghezza in byte della pagina
+  private Integer length;
+  @Column(name = "location")
+  // Valore restituito dal motore delle regole, indica dove è stata trovata l'occorrenza del termine, di tipo stringa
+  private String where;
 
 }
