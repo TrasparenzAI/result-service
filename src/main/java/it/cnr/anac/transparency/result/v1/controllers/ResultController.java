@@ -16,12 +16,16 @@
  */
 package it.cnr.anac.transparency.result.v1.controllers;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,8 +43,10 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.repositories.ResultDao;
 import it.cnr.anac.transparency.result.repositories.ResultRepository;
+import it.cnr.anac.transparency.result.services.CsvExportService;
 import it.cnr.anac.transparency.result.v1.ApiRoutes;
 import it.cnr.anac.transparency.result.v1.dto.DtoToEntityConverter;
 import it.cnr.anac.transparency.result.v1.dto.ResultCreateDto;
@@ -48,6 +54,7 @@ import it.cnr.anac.transparency.result.v1.dto.ResultMapper;
 import it.cnr.anac.transparency.result.v1.dto.ResultShowDto;
 import it.cnr.anac.transparency.result.v1.dto.ResultUpdateDto;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +74,7 @@ public class ResultController {
   private final ResultDao resultDao;
   private final ResultMapper mapper;
   private final DtoToEntityConverter dtoToEntityConverter;
+  private final CsvExportService csvExportService;
 
   @Operation(
       summary = "Visualizzazione delle informazioni di un risultato di validazione.")
@@ -85,7 +93,8 @@ public class ResultController {
   }
 
   @Operation(
-      summary = "Visualizzazione dei risultati di validazione presenti nel sistema.",
+      summary = "Visualizzazione dei risultati di validazione presenti nel sistema, filtrabili "
+          + "utilizzando alcuni parametri.",
       description = "Le informazioni sono restituite paginate'.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
@@ -106,11 +115,11 @@ public class ResultController {
       Pageable pageable) {
   codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
       Optional.empty() : codiceCategoria;
-    val companies = 
+    val results = 
         resultDao.findAll(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
             denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable)
           .map(mapper::convert);
-    return ResponseEntity.ok().body(companies);
+    return ResponseEntity.ok().body(results);
   }
 
   @Operation(
@@ -160,5 +169,79 @@ public class ResultController {
     resultRepository.delete(result);
     log.info("Eliminato definitivamente result {}", result);
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "Visualizzazione dei risultati di validazione presenti nel sistema.",
+      description = "Le informazioni sono restituite in formato CSV, è possibile filtrare i risultati"
+          + "mostrati con i parameti disponibili e limitare i risultati utilizzando la paginazione'.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restituito un CSV con la lista dei risultati di validazione presenti.")
+  })
+  @GetMapping(ApiRoutes.LIST_AS_CSV)
+  public ResponseEntity<String> listAsCsv(
+      HttpServletResponse servletResponse,
+      @RequestParam("idIpa") Optional<Long> idIpa,
+      @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
+      @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
+      @RequestParam("codiceIpa") Optional<String> codiceIpa,
+      @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
+      @RequestParam("isLeaf") Optional<Boolean> isLeaf,
+      @RequestParam("status") Optional<Integer> status,
+      @RequestParam("workflowId") Optional<String> workflowId,
+      @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
+      @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
+      Pageable pageable) throws IOException {
+      codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
+      Optional.empty() : codiceCategoria;
+      val results = 
+        resultDao.findAll(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+            denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
+        .stream().map(mapper::convertCsv).collect(Collectors.toList());
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+      headers.setContentDispositionFormData("attachment", "results.csv");
+      String csv = csvExportService.resultsToCsv(results);
+      return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
+  }
+
+  @Operation(
+      summary = "Visualizzazione dei risultati dell'ultima validazione registrata nel sistema.",
+      description = "Le informazioni sono restituite in formato CSV, è poissibile limitare "
+          + "i risultati utilizzando la paginazione'.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restituito un CSV con la lista dei risultati dell'ultima validazione.")
+  })
+  @GetMapping("/lastRunAsCsv")
+  public ResponseEntity<String> listLastRunAsCsv(
+      @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
+      Pageable pageable) throws IOException {
+      Optional<Result> lastResult = resultDao.lastResult();
+      Optional<String> lastWorkflowId = lastResult.isPresent() 
+          ? Optional.of(lastResult.get().getWorkflowId()) : Optional.empty();
+      val results = 
+        resultDao.findAll(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
+            Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
+        .stream().map(mapper::convertCsv).collect(Collectors.toList());
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+      headers.setContentDispositionFormData("attachment", "results.csv");
+      String csv = csvExportService.resultsToCsv(results);
+      return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
+  }
+
+  @Operation(
+      summary = "Visualizzazione delle informazioni del ultimo risultato memorizzato nel sistema.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restituito il risultato dell'ultima validazine registrata.")
+  })
+  @GetMapping("/lastResult")
+  public ResponseEntity<ResultShowDto> lastResult() {
+    Result lastResult = resultDao.lastResult()
+        .orElseThrow(() -> new EntityNotFoundException("Nessun risultato di validazione trovato"));
+    return ResponseEntity.ok().body(mapper.convert(lastResult));
   }
 }

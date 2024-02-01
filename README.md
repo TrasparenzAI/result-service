@@ -18,6 +18,7 @@ Transparency Results Service fornisce alcuni servizi REST utilizzabili in produz
    effettuata su un sito web di una PA
  - visualizzare i dati di una verifica su un sito web
  - mostrare la lista delle verifiche effettuate
+ - esportare in CSV i risultati delle validazioni presenti
 
 I servizi REST sono documentati tramite OpenAPI consultabile all'indirizzo /swagger-ui/index.html.
 L'OpenAPI del servizio di devel è disponibile all'indirizzo https://dica33.ba.cnr.it/result-service/swagger-ui/index.html.
