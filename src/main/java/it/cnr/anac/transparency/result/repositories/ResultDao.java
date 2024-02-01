@@ -24,9 +24,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
 
 import it.cnr.anac.transparency.result.models.QResult;
 import it.cnr.anac.transparency.result.models.Result;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -38,7 +41,20 @@ import lombok.RequiredArgsConstructor;
 public class ResultDao {
 
   private final ResultRepository repo;
-  
+
+  @PersistenceContext
+  private EntityManager entityManager;
+
+  public Optional<Result> lastResult() {
+    QResult result = QResult.result;
+    JPAQuery<Result> query = new JPAQuery<Result>(entityManager);
+    return Optional.ofNullable(
+        query.from(result)
+          .orderBy(result.id.desc()).limit(1)
+          .select(result)
+          .fetchFirst());
+  }
+
   public Page<Result> findAll(
       Optional<Long> idIpa,
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,

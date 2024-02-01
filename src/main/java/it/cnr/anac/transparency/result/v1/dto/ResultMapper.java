@@ -37,6 +37,8 @@ public interface ResultMapper {
 
   ResultShowDto convert(Result result);
 
+  ResultCsvDto convertCsv(Result result);
+
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "updatedAt", ignore = true)
