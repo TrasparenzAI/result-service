@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS results (
     id BIGSERIAL PRIMARY KEY,
     id_ipa INT,
-    codice_ipa TEXT,
+    codice_ipa TEXT UNIQUE,
     denominazione_ente TEXT NOT NULL,
     codice_fiscale_ente TEXT,
     tipologia TEXT,
