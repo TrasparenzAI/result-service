@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -50,12 +50,20 @@ public class ResultCreateDto {
   private boolean isLeaf;
 
   // 200
-  private int status;
+  private Integer status;
 
   // 5.466414
   private BigDecimal score;
 
   // "6d7e4bd7-a890-439d-9dc7-f9f3f515d8b5"
   private String workflowId;
+  private String workflowChildId;
+
+  //  Messaggio di errore restituito dal crawler di tipo stringa
+  private String errorMessage;
+  // Lunghezza in byte della pagina
+  private Integer length;
+  // Valore restituito dal motore delle regole, indica dove è stata trovata l'occorrenza del termine, di tipo stringa
+  private String where;
 
 }

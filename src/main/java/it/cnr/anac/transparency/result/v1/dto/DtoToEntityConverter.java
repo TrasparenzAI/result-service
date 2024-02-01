@@ -24,12 +24,13 @@ import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.repositories.ResultRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Classe di utilità per convertire un DTO nella corrispondente Entity.
  *
  */
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class DtoToEntityConverter {
@@ -51,10 +52,11 @@ public class DtoToEntityConverter {
    */
   public Result updateEntity(ResultUpdateDto resultDto) {
     Verify.verifyNotNull(resultDto);
-    val result = repo.findById(resultDto.getId())
+    Result result = repo.findById(resultDto.getId())
         .orElseThrow(() -> new EntityNotFoundException(
             String.format("Result con id = %d non trovato", resultDto.getId())));
     mapper.update(result, resultDto);
+    log.info("id = {}, length={}, model.length={}", resultDto.getId(), resultDto.getLength(), result.getLength());
     return result;
   }
   
