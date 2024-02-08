@@ -191,7 +191,7 @@ public class ResultController {
       @RequestParam("status") Optional<Integer> status,
       @RequestParam("workflowId") Optional<String> workflowId,
       @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
-      @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
+      @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100000, \"sort\":\"id\"}") 
       Pageable pageable) throws IOException {
       codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
       Optional.empty() : codiceCategoria;
@@ -216,7 +216,7 @@ public class ResultController {
   })
   @GetMapping("/lastRunAsCsv")
   public ResponseEntity<String> listLastRunAsCsv(
-      @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}") 
+      @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100000, \"sort\":\"id\"}") 
       Pageable pageable) throws IOException {
       Optional<Result> lastResult = resultDao.lastResult();
       Optional<String> lastWorkflowId = lastResult.isPresent() 
