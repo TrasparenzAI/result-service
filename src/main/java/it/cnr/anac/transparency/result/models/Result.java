@@ -22,6 +22,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -33,7 +34,9 @@ import lombok.ToString;
 @ToString
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Table(name = "results")
+@Table(
+    name = "results", 
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "workflowId", "idIpa", "ruleName" }) })
 @Entity
 public class Result extends MutableModel {
 
