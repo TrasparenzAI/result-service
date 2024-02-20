@@ -18,6 +18,7 @@ package it.cnr.anac.transparency.result;
 
 import it.cnr.anac.transparency.result.utils.UrlResolver;
 import java.util.Optional;
+import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -57,4 +58,13 @@ public class UrlJoinerTest {
     Assertions.assertEquals(target, joined.get());
   }
 
+  @Test
+  public void emptyUrls() {
+    var joined = UrlResolver.getDestinationUrl(ABSOLUTE_BASE_URL, null);
+    Assertions.assertTrue(joined.isEmpty());
+    joined = UrlResolver.getDestinationUrl(null, "/amministrazione-transparente");
+    Assertions.assertTrue(joined.isEmpty());
+    joined = UrlResolver.getDestinationUrl(null, null);
+    Assertions.assertTrue(joined.isEmpty());
+  }
 }
