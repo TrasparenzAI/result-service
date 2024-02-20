@@ -27,6 +27,9 @@ import org.apache.http.client.utils.URIBuilder;
 public class UrlResolver {
 
   public static Optional<String> getDestinationUrl(String base, String target) {
+    if (base == null || target == null) {
+      return Optional.empty();
+    }
     try {
       //Se il target è già un URL assoluta viene restituita quella
       URIBuilder uriBuilderTarget = new URIBuilder(target);
