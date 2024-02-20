@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>it.cnr.anac.transparency</groupId>
 	<artifactId>transparency-result-service</artifactId>
-	<version>0.0.1</version>
+	<version>0.1.2</version>
 	<name>Transparency Result Service</name>
 	<description>Servizio Risultati trasparenza siti PA</description>
 	<properties>
@@ -111,6 +111,12 @@
 		<dependency>
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.14</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

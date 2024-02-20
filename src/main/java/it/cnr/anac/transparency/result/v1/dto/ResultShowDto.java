@@ -17,7 +17,7 @@
 package it.cnr.anac.transparency.result.v1.dto;
 
 import java.time.LocalDateTime;
-
+import java.util.Optional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -33,5 +33,7 @@ public class ResultShowDto extends ResultUpdateDto {
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
-
+  
+  //Url di destinazione della risorsa web individuata
+  private Optional<String> destinationUrl;
 }

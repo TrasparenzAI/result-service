@@ -35,8 +35,12 @@ public interface ResultMapper {
 
   StorageDataShowDto convert(StorageData storageData);
 
+  @Mapping(target = "destinationUrl", 
+      expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
   ResultShowDto convert(Result result);
 
+  @Mapping(target = "destinationUrl", 
+      expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
   ResultCsvDto convertCsv(Result result);
 
   @Mapping(target = "id", ignore = true)
