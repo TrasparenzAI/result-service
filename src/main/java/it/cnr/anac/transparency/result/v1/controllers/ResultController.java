@@ -95,7 +95,7 @@ public class ResultController {
   @Operation(
       summary = "Visualizzazione dei risultati di validazione presenti nel sistema, filtrabili "
           + "utilizzando alcuni parametri.",
-      description = "Le informazioni sono restituite paginate'.")
+      description = "Le informazioni sono restituite paginate.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Restitutita una pagina della lista risultati di validazione presenti.")
@@ -174,7 +174,8 @@ public class ResultController {
   @Operation(
       summary = "Visualizzazione dei risultati di validazione presenti nel sistema.",
       description = "Le informazioni sono restituite in formato CSV, è possibile filtrare i risultati"
-          + "mostrati con i parameti disponibili e limitare i risultati utilizzando la paginazione'.")
+          + "mostrati con i parameti disponibili e limitare i risultati utilizzando la paginazione'. "
+          + "La dimensione massima della pagina è di 100.000 elementi.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Restituito un CSV con la lista dei risultati di validazione presenti.")
@@ -209,7 +210,8 @@ public class ResultController {
   @Operation(
       summary = "Visualizzazione dei risultati dell'ultima validazione registrata nel sistema.",
       description = "Le informazioni sono restituite in formato CSV, è poissibile limitare "
-          + "i risultati utilizzando la paginazione'.")
+          + "i risultati utilizzando la paginazione'."
+          + "La dimensione massima della pagina è di 100.000 elementi.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Restituito un CSV con la lista dei risultati dell'ultima validazione.")
