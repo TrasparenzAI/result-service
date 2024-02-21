@@ -67,4 +67,29 @@ public class UrlJoinerTest {
     joined = UrlResolver.getDestinationUrl(null, null);
     Assertions.assertTrue(joined.isEmpty());
   }
+  
+  @Test
+  public void illegalCharacterInQuery() {
+    var target = "https://web.spaggiari.eu/sdg/app/default/trasparenza.php?sede_codice=BAIT0004&amp;referer=http:\\www.itclenoci.it";
+    var joined = UrlResolver.getDestinationUrl(ABSOLUTE_BASE_URL, target);
+    Assertions.assertTrue(joined.isPresent());
+  }
+
+  @Test
+  public void encodeUrl() {
+    var target = "https://web.spaggiari.eu/?referer=http:\\\\www.itclenoci.it";
+    val sanitizedTarget = UrlResolver.sanitize(target);
+    Assertions.assertEquals("https://web.spaggiari.eu/?referer=http:%5C%5Cwww.itclenoci.it", sanitizedTarget);
+  }
+
+  @Test
+  public void saniteUrl() {
+    var url = "http://og.maggioli.cloud/ATGovWeb/BURAGODIMOLGORA/EntryPoint.aspx ";
+    var sanitizedUrl = UrlResolver.sanitize(url);
+    Assertions.assertEquals("http://og.maggioli.cloud/ATGovWeb/BURAGODIMOLGORA/EntryPoint.aspx", sanitizedUrl);
+    
+    url = "http://og.maggioli.cloud/ATGovWeb/BURAGODIMOLGORA/EntryPoint.aspx ";
+    sanitizedUrl = UrlResolver.sanitize(url);
+    Assertions.assertEquals("http://og.maggioli.cloud/ATGovWeb/BURAGODIMOLGORA/EntryPoint.aspx", sanitizedUrl);
+  }
 }

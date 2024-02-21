@@ -16,11 +16,9 @@
  */
 package it.cnr.anac.transparency.result.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
-
 import lombok.Data;
 
 @Data

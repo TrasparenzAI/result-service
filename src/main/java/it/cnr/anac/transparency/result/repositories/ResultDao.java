@@ -16,21 +16,18 @@
  */
 package it.cnr.anac.transparency.result.repositories;
 
-import java.time.LocalDate;
-import java.util.Optional;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
-
 import it.cnr.anac.transparency.result.models.QResult;
 import it.cnr.anac.transparency.result.models.Result;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalDate;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
 
 /**
  * DAO per le ricerche sui risultati di validazione.
