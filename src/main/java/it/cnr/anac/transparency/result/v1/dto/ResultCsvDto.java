@@ -42,7 +42,7 @@ public class ResultCsvDto {
   private String url;
 
   // Calcolato a runtime tramite join realUrl e url
-  private Optional<String> destinationUrl;
+  private String destinationUrl;
 
   // "amministrazione-trasparente"
   private String ruleName;
@@ -72,4 +72,5 @@ public class ResultCsvDto {
   private Integer length;
   // Valore restituito dal motore delle regole, indica dove è stata trovata l'occorrenza del termine, di tipo stringa
   private String where;
+
 }

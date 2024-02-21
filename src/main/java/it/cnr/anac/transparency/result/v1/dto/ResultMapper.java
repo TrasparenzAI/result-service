@@ -40,7 +40,7 @@ public interface ResultMapper {
   ResultShowDto convert(Result result);
 
   @Mapping(target = "destinationUrl", 
-      expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
+      expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()).orElse(null))")
   ResultCsvDto convertCsv(Result result);
 
   @Mapping(target = "id", ignore = true)
