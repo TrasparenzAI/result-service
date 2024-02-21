@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.utils.URIBuilder;
+import org.springframework.web.util.UriUtils;
 
 @Slf4j
 public class UrlResolver {
@@ -30,6 +31,8 @@ public class UrlResolver {
     if (base == null || target == null) {
       return Optional.empty();
     }
+    base = sanitize(base);
+    target = sanitize(target);
     try {
       //Se il target è già un URL assoluta viene restituita quella
       URIBuilder uriBuilderTarget = new URIBuilder(target);
@@ -56,8 +59,28 @@ public class UrlResolver {
       URI destination = baseUri.resolve(target);
       return Optional.of(destination.normalize().toString());
     } catch (URISyntaxException e) {
-      log.warn("Error during join of {} and {}", base, target, e);
+      log.info("Error during join of {} and {}. {}", base, target, 
+          e.toString().substring(0, Math.min(300, e.toString().length())));
       return Optional.empty();
     }
+  }
+
+  public static String sanitize(String url) {
+    url = url.strip();
+    url = url.replace(" ", "");
+    url = url.replace(" ", "%20");
+    if (url.contains("?")) {
+      String queryParams = url.substring(url.indexOf("?") + 1);
+      String baseUrl = url.substring(0, url.indexOf("?"));
+      baseUrl = sanitizeBaseUrl(baseUrl);
+      return String.format("%s?%s", baseUrl, UriUtils.encodePath(queryParams, "UTF-8"));
+    } else {
+      return sanitizeBaseUrl(url);
+    }
+  }
+
+  private static String sanitizeBaseUrl(String baseUrl) {
+    //XXX: è corretto fare questa semplificazione?
+    return baseUrl.replace("\\", "");
   }
 }

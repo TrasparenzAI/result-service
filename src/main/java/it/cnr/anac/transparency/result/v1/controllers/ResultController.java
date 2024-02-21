@@ -194,7 +194,7 @@ public class ResultController {
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100000, \"sort\":\"id\"}") 
       Pageable pageable) throws IOException {
       codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
-      Optional.empty() : codiceCategoria;
+          Optional.empty() : codiceCategoria;
       val results = 
         resultDao.findAll(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
             denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
