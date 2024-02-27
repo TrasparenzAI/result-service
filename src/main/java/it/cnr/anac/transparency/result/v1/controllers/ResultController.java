@@ -140,13 +140,13 @@ public class ResultController {
       @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
       @RequestParam("isLeaf") Optional<Boolean> isLeaf,
       @RequestParam("status") Optional<Integer> status,
-      @RequestParam("workflowId") Optional<String> workflowId,
+      @RequestParam("workflowId") String workflowId,
       @RequestParam("createdAfter") Optional<LocalDate> createdAfter) {
   codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
       Optional.empty() : codiceCategoria;
     val results = 
         resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-            denominazioneEnte, isLeaf, status, workflowId, createdAfter)
+            denominazioneEnte, isLeaf, status, Optional.of(workflowId), createdAfter)
           .stream().map(mapper::convert).collect(Collectors.toList());
     return ResponseEntity.ok().body(results);
   }
