@@ -23,7 +23,10 @@ import it.cnr.anac.transparency.result.models.Result;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,15 +55,12 @@ public class ResultDao {
           .fetchFirst());
   }
 
-  public Page<Result> findAll(
-      Optional<Long> idIpa,
+  private BooleanBuilder findConditions(QResult result, Optional<Long> idIpa,
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
       Optional<String> codiceIpa, Optional<String> denominazioneEnte, 
       Optional<Boolean> isLeaf,
       Optional<Integer> status, Optional<String> workflowId,
-      Optional<LocalDate> createdAfter,
-      Pageable pageable) {
-    QResult result = QResult.result;
+      Optional<LocalDate> createdAfter) {
     BooleanBuilder builder = new BooleanBuilder(result.id.isNotNull());
     if (idIpa.isPresent()) {
       builder.and(result.company.idIpa.eq(idIpa.get()));
@@ -89,7 +89,37 @@ public class ResultDao {
     if (createdAfter.isPresent()) {
       builder.and(result.createdAt.after(createdAfter.get().atStartOfDay()));
     }
-    return repo.findAll(builder.getValue(), pageable);
+    return builder;
   }
 
+  public Page<Result> find(
+      Optional<Long> idIpa,
+      Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte, 
+      Optional<Boolean> isLeaf,
+      Optional<Integer> status, Optional<String> workflowId,
+      Optional<LocalDate> createdAfter,
+      Pageable pageable) {
+    QResult result = QResult.result;
+    BooleanBuilder conditions = 
+        findConditions(result, 
+            idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte, 
+            isLeaf, status, workflowId, createdAfter);
+    return repo.findAll(conditions.getValue(), pageable);
+  }
+
+  public List<Result> find(Optional<Long> idIpa,
+      Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte, 
+      Optional<Boolean> isLeaf,
+      Optional<Integer> status, Optional<String> workflowId,
+      Optional<LocalDate> createdAfter) {
+    QResult result = QResult.result;
+    BooleanBuilder conditions = 
+        findConditions(result, 
+            idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte, 
+            isLeaf, status, workflowId, createdAfter);
+    return StreamSupport.stream(repo.findAll(conditions.getValue()).spliterator(), false)
+        .collect(Collectors.toList());
+  }
 }
