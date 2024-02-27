@@ -29,6 +29,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import it.cnr.anac.transparency.result.v1.dto.ResultCsvDto;
+import it.cnr.anac.transparency.result.v1.dto.ResultCsvTerseDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -43,6 +44,28 @@ public class CsvExportService {
     csvMapper.registerModule(new JavaTimeModule());
 
     CsvSchema csvSchema = csvMapper.schemaFor(ResultCsvDto.class).withHeader();
+    try (StringWriter strW = new StringWriter()) {
+      SequenceWriter seqW = csvMapper.writer(csvSchema).writeValues(strW);
+      results.forEach(result -> {
+        try {
+          seqW.write(result);
+          log.trace("Writing result{}", result);
+        } catch (IOException e) {
+          log.warn("Unable to export to CSV Result {}", result, e);
+        }
+      });
+      return strW.toString();
+    }
+  }
+
+  public String resultsToCsvTerse(List<ResultCsvTerseDto> results) throws IOException {
+    log.debug("Deserializing to CSV {} results", results.size());
+
+    final CsvMapper csvMapper = new CsvMapper();
+    csvMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    csvMapper.registerModule(new JavaTimeModule());
+
+    CsvSchema csvSchema = csvMapper.schemaFor(ResultCsvTerseDto.class).withHeader();
     try (StringWriter strW = new StringWriter()) {
       SequenceWriter seqW = csvMapper.writer(csvSchema).writeValues(strW);
       results.forEach(result -> {

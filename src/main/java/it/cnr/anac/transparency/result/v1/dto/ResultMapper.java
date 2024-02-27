@@ -19,7 +19,7 @@ package it.cnr.anac.transparency.result.v1.dto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-
+import org.mapstruct.Named;
 import it.cnr.anac.transparency.result.models.Company;
 import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.models.StorageData;
@@ -31,7 +31,11 @@ import it.cnr.anac.transparency.result.models.StorageData;
 @Mapper(componentModel = "spring")
 public interface ResultMapper {
 
+  @Named("company-mapping")
   CompanyShowDto convert(Company company);
+
+  @Named("company-mapping-terse")
+  CompanyShowTerseDto convertTerse(Company company);
 
   StorageDataShowDto convert(StorageData storageData);
 
@@ -39,9 +43,13 @@ public interface ResultMapper {
       expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
   ResultShowDto convert(Result result);
 
+  @Mapping(source ="company", target = "company", qualifiedByName = "company-mapping")
   @Mapping(target = "destinationUrl", 
       expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()).orElse(null))")
   ResultCsvDto convertCsv(Result result);
+
+  @Mapping(source ="company", target = "company", qualifiedByName = "company-mapping-terse")
+  ResultCsvTerseDto convertCsvTerse(Result result);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "createdAt", ignore = true)

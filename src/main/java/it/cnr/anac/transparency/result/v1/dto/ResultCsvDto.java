@@ -16,24 +16,38 @@
  */
 package it.cnr.anac.transparency.result.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
+import lombok.ToString;
 
+/**
+ * DTO con le informazioni dei risultati da esportare in un file CSV.
+ */
+@ToString
 @Data
 public class ResultCsvDto {
 
-  private Long id;
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
-  
-  @JsonUnwrapped(prefix = "company.")
+  @JsonUnwrapped(prefix = "IPA-")
   private CompanyShowDto company;
 
+  @JsonProperty("ID")
+  private Long id;
+
+  @JsonProperty("URL CALCOLATA")
   private String realUrl;
 
-  @JsonUnwrapped(prefix = "storageData.")
+  @JsonProperty("RECORD CREATO")
+  private LocalDateTime createdAt;
+  @JsonProperty("RECORD AGGIORNATO")
+  private LocalDateTime updatedAt;
+  // 200
+  @JsonProperty("STATO")
+  private Integer status;
+
+  @JsonUnwrapped(prefix = "STORAGE DATA-.")
   private StorageDataShowDto storageData;
 
   // "/it/amministrazione-trasparente?searchterm=amministrazione+trasparente"
@@ -53,9 +67,6 @@ public class ResultCsvDto {
 
   // false
   private boolean isLeaf;
-
-  // 200
-  private Integer status;
 
   // 5.466414
   private BigDecimal score;

@@ -221,18 +221,29 @@ public class ResultController {
       @RequestParam("status") Optional<Integer> status,
       @RequestParam("workflowId") Optional<String> workflowId,
       @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
+      @RequestParam("terse") Optional<Boolean> terse,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100000, \"sort\":\"id\"}") 
       Pageable pageable) throws IOException {
       codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
           Optional.empty() : codiceCategoria;
-      val results = 
-        resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-            denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
-        .stream().map(mapper::convertCsv).collect(Collectors.toList());
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
       headers.setContentDispositionFormData("attachment", "results.csv");
-      String csv = csvExportService.resultsToCsv(results);
+
+      String csv = null;
+      if (terse.isEmpty() || terse.get()) {
+        val results = 
+            resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+                denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
+            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+          csv = csvExportService.resultsToCsvTerse(results);
+      } else {
+        val results = 
+            resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+                denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
+            .stream().map(mapper::convertCsv).collect(Collectors.toList());
+          csv = csvExportService.resultsToCsv(results);
+      }
       return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
   }
 
@@ -247,19 +258,29 @@ public class ResultController {
   })
   @GetMapping("/lastRunAsCsv")
   public ResponseEntity<String> listLastRunAsCsv(
+      @RequestParam("terse") Optional<Boolean> terse,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100000, \"sort\":\"id\"}") 
       Pageable pageable) throws IOException {
       Optional<Result> lastResult = resultDao.lastResult();
       Optional<String> lastWorkflowId = lastResult.isPresent() 
           ? Optional.of(lastResult.get().getWorkflowId()) : Optional.empty();
-      val results = 
-        resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
-            Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
-        .stream().map(mapper::convertCsv).collect(Collectors.toList());
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
       headers.setContentDispositionFormData("attachment", "results.csv");
-      String csv = csvExportService.resultsToCsv(results);
+      String csv = null;
+      if (terse.isEmpty() || terse.get()) {
+        val results = 
+            resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
+                Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
+            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+        csv = csvExportService.resultsToCsvTerse(results);
+      } else {
+        val results = 
+            resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
+                Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
+            .stream().map(mapper::convertCsv).collect(Collectors.toList());
+        csv = csvExportService.resultsToCsv(results);
+      }
       return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
   }
 

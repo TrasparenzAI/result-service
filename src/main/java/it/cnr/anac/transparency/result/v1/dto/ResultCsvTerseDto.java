@@ -17,22 +17,37 @@
 package it.cnr.anac.transparency.result.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import java.time.LocalDateTime;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Data transfer object per le informazioni sulle Company.
- *
+ * DTO con le informazioni di base dei risultati da esportare in un file CSV.
  */
+@JsonPropertyOrder(
+    { "company", "id","realUrl", "createdAt", 
+      "updatedAt", "status" })
 @ToString
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyShowTerseDto {
+public class ResultCsvTerseDto {
+
+  @JsonUnwrapped(prefix = "IPA-")
+  private CompanyShowTerseDto company;
 
   @JsonProperty("ID")
-  private Long idIpa;
-  @JsonProperty("SORGENTE")
-  private String sorgente;
+  private Long id;
+
+  @JsonProperty("URL CALCOLATA")
+  private String realUrl;
+
+  @JsonProperty("RECORD CREATO")
+  private LocalDateTime createdAt;
+  @JsonProperty("RECORD AGGIORNATO")
+  private LocalDateTime updatedAt;
+  // 200
+  @JsonProperty("STATO")
+  private Integer status;
 
 }
