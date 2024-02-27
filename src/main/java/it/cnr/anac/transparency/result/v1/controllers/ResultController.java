@@ -18,6 +18,7 @@ package it.cnr.anac.transparency.result.v1.controllers;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -80,9 +81,9 @@ public class ResultController {
       summary = "Visualizzazione delle informazioni di un risultato di validazione.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
-          description = "Restituiti i risultati della validazine."),
+          description = "Restituiti i risultati della validazione."),
       @ApiResponse(responseCode = "404", 
-          description = "Risultati validazione non trovata con l'id fornito.",
+          description = "Risultati validazione non trovati con l'id fornito.",
           content = @Content)
   })
   @GetMapping(ApiRoutes.SHOW)
@@ -116,9 +117,37 @@ public class ResultController {
   codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
       Optional.empty() : codiceCategoria;
     val results = 
-        resultDao.findAll(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+        resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
             denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable)
           .map(mapper::convert);
+    return ResponseEntity.ok().body(results);
+  }
+
+  @Operation(
+      summary = "Visualizzazione dei risultati di validazione presenti nel sistema, filtrabili "
+          + "utilizzando alcuni parametri.",
+      description = "Sono restitutite tutte informazioni, in modo non paginato.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", 
+          description = "Restitutita la lista risultati di validazione presenti.")
+  })
+  @GetMapping(ApiRoutes.LIST_ALL)
+  public ResponseEntity<List<ResultShowDto>> listAll(
+      @RequestParam("idIpa") Optional<Long> idIpa,
+      @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
+      @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
+      @RequestParam("codiceIpa") Optional<String> codiceIpa,
+      @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
+      @RequestParam("isLeaf") Optional<Boolean> isLeaf,
+      @RequestParam("status") Optional<Integer> status,
+      @RequestParam("workflowId") Optional<String> workflowId,
+      @RequestParam("createdAfter") Optional<LocalDate> createdAfter) {
+  codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
+      Optional.empty() : codiceCategoria;
+    val results = 
+        resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+            denominazioneEnte, isLeaf, status, workflowId, createdAfter)
+          .stream().map(mapper::convert).collect(Collectors.toList());
     return ResponseEntity.ok().body(results);
   }
 
@@ -197,7 +226,7 @@ public class ResultController {
       codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
           Optional.empty() : codiceCategoria;
       val results = 
-        resultDao.findAll(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+        resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
             denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
         .stream().map(mapper::convertCsv).collect(Collectors.toList());
       HttpHeaders headers = new HttpHeaders();
@@ -224,7 +253,7 @@ public class ResultController {
       Optional<String> lastWorkflowId = lastResult.isPresent() 
           ? Optional.of(lastResult.get().getWorkflowId()) : Optional.empty();
       val results = 
-        resultDao.findAll(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
+        resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
             Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
         .stream().map(mapper::convertCsv).collect(Collectors.toList());
       HttpHeaders headers = new HttpHeaders();

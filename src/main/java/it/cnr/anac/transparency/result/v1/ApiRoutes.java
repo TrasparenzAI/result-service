@@ -30,6 +30,7 @@ public class ApiRoutes {
   public static final String ID_REGEX = "{id:" + ONLY_DIGITS_REGEX + "}";
 
   public static final String LIST = "";
+  public static final String LIST_ALL = "/all";
   public static final String LIST_AS_CSV = "/csv";
   public static final String SHOW = "/" + ID_REGEX;
   public static final String CREATE = "";
