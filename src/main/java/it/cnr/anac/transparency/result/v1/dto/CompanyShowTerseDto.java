@@ -17,22 +17,36 @@
 package it.cnr.anac.transparency.result.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
- * Data transfer object per le informazioni sulle Company.
+ * Data transfer object per le informazioni sulle Company, informazioni di base
  *
  */
+@JsonPropertyOrder(
+    { "codiceIpa", "codiceCategoria","codiceFiscaleEnte", "denominazioneEnte", 
+      "tipologia", "codiceNatura", "acronimo", "sitoIstituzionale" })
 @ToString
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyShowTerseDto {
+public class CompanyShowTerseDto {
 
-  @JsonProperty("ID")
-  private Long idIpa;
-  @JsonProperty("SORGENTE")
-  private String sorgente;
+  @JsonProperty("CODICE")
+  private String codiceIpa;
+  @JsonProperty("CATEGORIA")
+  private String codiceCategoria;
+  @JsonProperty("CODICE FISCALE")
+  private String codiceFiscaleEnte;
+  @JsonProperty("DENOMINAZIONE")
+  private String denominazioneEnte;
+  @JsonProperty("TIPOLOGIA")
+  private String tipologia;
+  @JsonProperty("NATURA GIURIDICA")
+  private String codiceNatura;
+  @JsonProperty("ACRONIMO")
+  private String acronimo;
+  @JsonProperty("SITO ISTITUZIONALE")
+  private String sitoIstituzionale;
 
 }

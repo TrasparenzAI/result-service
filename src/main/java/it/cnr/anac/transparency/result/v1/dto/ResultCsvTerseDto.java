@@ -17,21 +17,24 @@
 package it.cnr.anac.transparency.result.v1.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
 import lombok.ToString;
 
 /**
- * DTO con le informazioni dei risultati da esportare in un file CSV.
+ * DTO con le informazioni di base dei risultati da esportare in un file CSV.
  */
+@JsonPropertyOrder(
+    { "company", "id","realUrl", "createdAt", 
+      "updatedAt", "status" })
 @ToString
 @Data
-public class ResultCsvDto {
+public class ResultCsvTerseDto {
 
   @JsonUnwrapped(prefix = "IPA-")
-  private CompanyShowDto company;
+  private CompanyShowTerseDto company;
 
   @JsonProperty("ID")
   private Long id;
@@ -46,40 +49,5 @@ public class ResultCsvDto {
   // 200
   @JsonProperty("STATO")
   private Integer status;
-
-  @JsonUnwrapped(prefix = "STORAGE DATA-")
-  private StorageDataShowDto storageData;
-
-  // "/it/amministrazione-trasparente?searchterm=amministrazione+trasparente"
-  private String url;
-
-  // Calcolato a runtime tramite join realUrl e url
-  private String destinationUrl;
-
-  // "amministrazione-trasparente"
-  private String ruleName;
-
-  // "Amministrazione Trasparente"
-  private String term;
-
-  // "Amministrazione trasparente"
-  private String content;
-
-  // false
-  private boolean isLeaf;
-
-  // 5.466414
-  private BigDecimal score;
-
-  // "6d7e4bd7-a890-439d-9dc7-f9f3f515d8b5"
-  private String workflowId;
-  private String workflowChildId;
-
-  //  Messaggio di errore restituito dal crawler di tipo stringa
-  private String errorMessage;
-  // Lunghezza in byte della pagina
-  private Integer length;
-  // Valore restituito dal motore delle regole, indica dove è stata trovata l'occorrenza del termine, di tipo stringa
-  private String where;
 
 }

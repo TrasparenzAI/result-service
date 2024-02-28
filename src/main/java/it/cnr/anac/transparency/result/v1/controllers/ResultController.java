@@ -204,7 +204,8 @@ public class ResultController {
       summary = "Visualizzazione dei risultati di validazione presenti nel sistema.",
       description = "Le informazioni sono restituite in formato CSV, è possibile filtrare i risultati"
           + "mostrati con i parameti disponibili e limitare i risultati utilizzando la paginazione'. "
-          + "La dimensione massima della pagina è di 100.000 elementi.")
+          + "La dimensione massima della pagina è di 100.000 elementi."
+          + "È possibile utilizzare il parametro 'terse' per avere solo le informazioni principali esportate.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
           description = "Restituito un CSV con la lista dei risultati di validazione presenti.")
@@ -221,18 +222,31 @@ public class ResultController {
       @RequestParam("status") Optional<Integer> status,
       @RequestParam("workflowId") Optional<String> workflowId,
       @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
+      @Parameter(required = false, example = "false", 
+        description = "Permettere di esportare solo le informazioni principali")
+      @RequestParam("terse") Optional<Boolean> terse,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100000, \"sort\":\"id\"}") 
       Pageable pageable) throws IOException {
       codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? 
           Optional.empty() : codiceCategoria;
-      val results = 
-        resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-            denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
-        .stream().map(mapper::convertCsv).collect(Collectors.toList());
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
       headers.setContentDispositionFormData("attachment", "results.csv");
-      String csv = csvExportService.resultsToCsv(results);
+
+      String csv = null;
+      if (terse.isPresent() && terse.get()) {
+        val results = 
+            resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+                denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
+            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+          csv = csvExportService.resultsToCsvTerse(results);
+      } else {
+        val results = 
+            resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
+                denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
+            .stream().map(mapper::convertCsv).collect(Collectors.toList());
+          csv = csvExportService.resultsToCsv(results);
+      }
       return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
   }
 
@@ -240,6 +254,7 @@ public class ResultController {
       summary = "Visualizzazione dei risultati dell'ultima validazione registrata nel sistema.",
       description = "Le informazioni sono restituite in formato CSV, è poissibile limitare "
           + "i risultati utilizzando la paginazione'."
+          + "È possibile utilizzare il parametro 'terse' per avere solo le informazioni principali esportate."
           + "La dimensione massima della pagina è di 100.000 elementi.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", 
@@ -247,19 +262,31 @@ public class ResultController {
   })
   @GetMapping("/lastRunAsCsv")
   public ResponseEntity<String> listLastRunAsCsv(
+      @Parameter(required = false, example = "false", 
+        description = "Permettere di esportare solo le informazioni principali")
+      @RequestParam("terse") Optional<Boolean> terse,
       @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100000, \"sort\":\"id\"}") 
       Pageable pageable) throws IOException {
       Optional<Result> lastResult = resultDao.lastResult();
       Optional<String> lastWorkflowId = lastResult.isPresent() 
           ? Optional.of(lastResult.get().getWorkflowId()) : Optional.empty();
-      val results = 
-        resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
-            Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
-        .stream().map(mapper::convertCsv).collect(Collectors.toList());
       HttpHeaders headers = new HttpHeaders();
       headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
       headers.setContentDispositionFormData("attachment", "results.csv");
-      String csv = csvExportService.resultsToCsv(results);
+      String csv = null;
+      if (terse.isPresent() && terse.get()) {
+        val results = 
+            resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
+                Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
+            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+        csv = csvExportService.resultsToCsvTerse(results);
+      } else {
+        val results = 
+            resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
+                Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
+            .stream().map(mapper::convertCsv).collect(Collectors.toList());
+        csv = csvExportService.resultsToCsv(results);
+      }
       return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
   }
 
