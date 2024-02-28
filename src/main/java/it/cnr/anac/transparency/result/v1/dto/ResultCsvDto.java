@@ -47,7 +47,7 @@ public class ResultCsvDto {
   @JsonProperty("STATO")
   private Integer status;
 
-  @JsonUnwrapped(prefix = "STORAGE DATA-.")
+  @JsonUnwrapped(prefix = "STORAGE DATA-")
   private StorageDataShowDto storageData;
 
   // "/it/amministrazione-trasparente?searchterm=amministrazione+trasparente"
