@@ -37,18 +37,24 @@ public interface ResultMapper {
   @Named("company-mapping-terse")
   CompanyShowTerseDto convertTerse(Company company);
 
+  @Named("company-csv-mapping")
+  CompanyShowCsvDto convertCsv(Company company);
+
+  @Named("company-csv-mapping-terse")
+  CompanyShowTerseCsvDto convertCsvTerse(Company company);
+
   StorageDataShowDto convert(StorageData storageData);
 
   @Mapping(target = "destinationUrl", 
       expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
   ResultShowDto convert(Result result);
 
-  @Mapping(source ="company", target = "company", qualifiedByName = "company-mapping")
+  @Mapping(source ="company", target = "company", qualifiedByName = "company-csv-mapping")
   @Mapping(target = "destinationUrl", 
       expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()).orElse(null))")
   ResultCsvDto convertCsv(Result result);
 
-  @Mapping(source ="company", target = "company", qualifiedByName = "company-mapping-terse")
+  @Mapping(source ="company", target = "company", qualifiedByName = "company-csv-mapping-terse")
   ResultCsvTerseDto convertCsvTerse(Result result);
 
   @Mapping(target = "id", ignore = true)
