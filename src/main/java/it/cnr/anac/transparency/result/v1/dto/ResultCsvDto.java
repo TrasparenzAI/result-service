@@ -31,7 +31,7 @@ import lombok.ToString;
 public class ResultCsvDto {
 
   @JsonUnwrapped(prefix = "IPA-")
-  private CompanyShowDto company;
+  private CompanyShowCsvDto company;
 
   @JsonProperty("ID")
   private Long id;
