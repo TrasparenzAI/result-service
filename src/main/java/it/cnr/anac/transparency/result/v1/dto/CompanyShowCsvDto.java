@@ -16,6 +16,7 @@
  */
 package it.cnr.anac.transparency.result.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,9 +28,11 @@ import lombok.ToString;
 @ToString
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CompanyShowDto extends CompanyShowTerseDto {
+public class CompanyShowCsvDto extends CompanyShowTerseCsvDto {
 
+  @JsonProperty("ID")
   private Long idIpa;
+  @JsonProperty("SORGENTE")
   private String sorgente;
 
 }

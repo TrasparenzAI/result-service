@@ -16,6 +16,7 @@
  */
 package it.cnr.anac.transparency.result.v1.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 import lombok.ToString;
@@ -29,15 +30,23 @@ import lombok.ToString;
       "tipologia", "codiceNatura", "acronimo", "sitoIstituzionale" })
 @ToString
 @Data
-public class CompanyShowTerseDto {
+public class CompanyShowTerseCsvDto {
 
+  @JsonProperty("CODICE")
   private String codiceIpa;
+  @JsonProperty("CATEGORIA")
   private String codiceCategoria;
+  @JsonProperty("CODICE FISCALE")
   private String codiceFiscaleEnte;
+  @JsonProperty("DENOMINAZIONE")
   private String denominazioneEnte;
+  @JsonProperty("TIPOLOGIA")
   private String tipologia;
+  @JsonProperty("NATURA GIURIDICA")
   private String codiceNatura;
+  @JsonProperty("ACRONIMO")
   private String acronimo;
+  @JsonProperty("SITO ISTITUZIONALE")
   private String sitoIstituzionale;
 
 }
