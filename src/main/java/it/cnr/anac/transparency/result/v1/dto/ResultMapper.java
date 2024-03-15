@@ -84,6 +84,7 @@ public interface ResultMapper {
               .stream()
               .map(rrcd -> {
                 Result result = convert(rrcd);
+                result.setRealUrl(rbcd.getRealUrl());
                 result.setCompany(convert(rbcd.getCompany()));
                 result.setStorageData(convert(rbcd.getStorageData()));
                 result.setWorkflowId(rbcd.getWorkflowId());
