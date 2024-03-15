@@ -26,6 +26,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
+
 /**
  * Classe di utilità per convertire un DTO nella corrispondente Entity.
  *
@@ -45,6 +47,15 @@ public class DtoToEntityConverter {
     Result result = new Result();
     mapper.update(result, resultDto);
     return result;
+  }
+
+  /**
+   * Coverte il dto in una lista di Result
+   * @param resultBulkCreateDto
+   * @return
+   */
+  public List<Result> createBulkEntity(ResultBulkCreateDto resultBulkCreateDto) {
+    return mapper.toResults(resultBulkCreateDto);
   }
 
   /**

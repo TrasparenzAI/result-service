@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -49,11 +50,6 @@ import it.cnr.anac.transparency.result.repositories.ResultDao;
 import it.cnr.anac.transparency.result.repositories.ResultRepository;
 import it.cnr.anac.transparency.result.services.CsvExportService;
 import it.cnr.anac.transparency.result.v1.ApiRoutes;
-import it.cnr.anac.transparency.result.v1.dto.DtoToEntityConverter;
-import it.cnr.anac.transparency.result.v1.dto.ResultCreateDto;
-import it.cnr.anac.transparency.result.v1.dto.ResultMapper;
-import it.cnr.anac.transparency.result.v1.dto.ResultShowDto;
-import it.cnr.anac.transparency.result.v1.dto.ResultUpdateDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -168,7 +164,24 @@ public class ResultController {
     return ResponseEntity.status(HttpStatus.CREATED).body(mapper.convert(result));
   }
 
-  @Operation(
+    @Operation(
+            summary = "Creazione di più di un risultato di validazione.",
+            description = "Questa è la creazione di più risultati di validazione.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Risultato creato correttamente."),
+            @ApiResponse(responseCode = "400", description = "Validazione delle informazioni obbligatorie fallita.",
+                    content = @Content)
+    })
+    @PutMapping(ApiRoutes.CREATE_BULK)
+    public ResponseEntity<List<ResultShowDto>> createBulk(@NotNull @Valid @RequestBody ResultBulkCreateDto resultDto) {
+        log.debug("CompanyController::create companyDto = {}", resultDto);
+        val result = dtoToEntityConverter.createBulkEntity(resultDto);
+        resultRepository.saveAll(result);
+        log.info("Creato Result {}", result);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.convert(result));
+    }
+
+    @Operation(
       summary = "Aggiornamento dei dati di un risultato di validazione.")
   @ApiResponses(value = {
       @ApiResponse(responseCode = "200", description = "Risultato aggiornato correttamente."),

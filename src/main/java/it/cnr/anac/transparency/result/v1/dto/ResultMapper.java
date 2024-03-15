@@ -16,13 +16,15 @@
  */
 package it.cnr.anac.transparency.result.v1.dto;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 import it.cnr.anac.transparency.result.models.Company;
 import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.models.StorageData;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Mapping dei dati delle Entity nei rispettivi DTO.
@@ -49,6 +51,10 @@ public interface ResultMapper {
       expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
   ResultShowDto convert(Result result);
 
+  @Mapping(target = "destinationUrl",
+          expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
+  List<ResultShowDto> convert(List<Result> results);
+
   @Mapping(source ="company", target = "company", qualifiedByName = "company-csv-mapping")
   @Mapping(target = "destinationUrl", 
       expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()).orElse(null))")
@@ -62,4 +68,33 @@ public interface ResultMapper {
   @Mapping(target = "updatedAt", ignore = true)
   @Mapping(target = "version", ignore = true)
   public void update(@MappingTarget Result result, ResultCreateDto companyDto);
+
+  Company convert(CompanyShowDto companyShowDto);
+
+  StorageData convert(StorageDataShowDto storageDataShowDto);
+
+  Result convert(ResultRuleCreateDto resultRuleCreateDto);
+
+  default List<Result> toResults(ResultBulkCreateDto resultBulkCreateDto) {
+    List<Result> results = new ArrayList<>();
+    Optional.ofNullable(resultBulkCreateDto).ifPresent(rbcd -> {
+      results .addAll(
+              rbcd
+              .getResultRuleCreateDtos()
+              .stream()
+              .map(rrcd -> {
+                Result result = convert(rrcd);
+                result.setCompany(convert(rbcd.getCompany()));
+                result.setStorageData(convert(rbcd.getStorageData()));
+                result.setWorkflowId(rbcd.getWorkflowId());
+                result.setWorkflowChildId(rbcd.getWorkflowChildId());
+                result.setErrorMessage(rbcd.getErrorMessage());
+                result.setLength(rbcd.getLength());
+                return result;
+              })
+              .collect(Collectors.toList())
+      );
+    });
+    return results;
+  }
 }
