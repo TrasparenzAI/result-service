@@ -27,7 +27,7 @@ import lombok.ToString;
  * DTO con le informazioni di base dei risultati da esportare in un file CSV.
  */
 @JsonPropertyOrder(
-    { "company", "id","ruleName", "realUrl", "createdAt",
+    { "company", "id","ruleName","term","content","realUrl", "createdAt",
       "updatedAt", "status" })
 @ToString
 @Data
