@@ -104,6 +104,7 @@ public class ResultController {
       @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
       @RequestParam("codiceIpa") Optional<String> codiceIpa,
       @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
+      @RequestParam("ruleName") Optional<String> ruleName,
       @RequestParam("isLeaf") Optional<Boolean> isLeaf,
       @RequestParam("status") Optional<Integer> status,
       @RequestParam("workflowId") Optional<String> workflowId,
@@ -114,7 +115,7 @@ public class ResultController {
       Optional.empty() : codiceCategoria;
     val results = 
         resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-            denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable)
+            denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
           .map(mapper::convert);
     return ResponseEntity.ok().body(results);
   }
@@ -134,6 +135,7 @@ public class ResultController {
       @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
       @RequestParam("codiceIpa") Optional<String> codiceIpa,
       @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
+      @RequestParam("ruleName") Optional<String> ruleName,
       @RequestParam("isLeaf") Optional<Boolean> isLeaf,
       @RequestParam("status") Optional<Integer> status,
       @RequestParam("workflowId") String workflowId,
@@ -142,7 +144,7 @@ public class ResultController {
       Optional.empty() : codiceCategoria;
     val results = 
         resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-            denominazioneEnte, isLeaf, status, Optional.of(workflowId), createdAfter)
+            denominazioneEnte, ruleName, isLeaf, status, Optional.of(workflowId), createdAfter)
           .stream().map(mapper::convert).collect(Collectors.toList());
     return ResponseEntity.ok().body(results);
   }
@@ -231,6 +233,7 @@ public class ResultController {
       @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
       @RequestParam("codiceIpa") Optional<String> codiceIpa,
       @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
+      @RequestParam("ruleName") Optional<String> ruleName,
       @RequestParam("isLeaf") Optional<Boolean> isLeaf,
       @RequestParam("status") Optional<Integer> status,
       @RequestParam("workflowId") Optional<String> workflowId,
@@ -250,13 +253,13 @@ public class ResultController {
       if (terse.isPresent() && terse.get()) {
         val results = 
             resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-                denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
+                denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable).getContent()
             .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
           csv = csvExportService.resultsToCsvTerse(results);
       } else {
         val results = 
             resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, 
-                denominazioneEnte, isLeaf, status, workflowId, createdAfter, pageable).getContent()
+                denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable).getContent()
             .stream().map(mapper::convertCsv).collect(Collectors.toList());
           csv = csvExportService.resultsToCsv(results);
       }
@@ -290,13 +293,13 @@ public class ResultController {
       if (terse.isPresent() && terse.get()) {
         val results = 
             resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
-                Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
+                Optional.empty(), Optional.empty(),Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
             .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
         csv = csvExportService.resultsToCsvTerse(results);
       } else {
         val results = 
             resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), 
-                Optional.empty(), Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
+                Optional.empty(), Optional.empty(),Optional.empty(), Optional.empty(), lastWorkflowId, Optional.empty(), pageable).getContent()
             .stream().map(mapper::convertCsv).collect(Collectors.toList());
         csv = csvExportService.resultsToCsv(results);
       }

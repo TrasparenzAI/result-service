@@ -57,7 +57,8 @@ public class ResultDao {
 
   private BooleanBuilder findConditions(QResult result, Optional<Long> idIpa,
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
-      Optional<String> codiceIpa, Optional<String> denominazioneEnte, 
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte,
+      Optional<String> ruleName,
       Optional<Boolean> isLeaf,
       Optional<Integer> status, Optional<String> workflowId,
       Optional<LocalDate> createdAfter) {
@@ -77,6 +78,9 @@ public class ResultDao {
     if (denominazioneEnte.isPresent()) {
       builder.and(result.company.denominazioneEnte.containsIgnoreCase(denominazioneEnte.get()));
     }
+    if (ruleName.isPresent()) {
+      builder.and(result.ruleName.equalsIgnoreCase(ruleName.get()));
+    }
     if (workflowId.isPresent()) {
       builder.and(result.workflowId.equalsIgnoreCase(workflowId.get()));
     }
@@ -95,7 +99,8 @@ public class ResultDao {
   public Page<Result> find(
       Optional<Long> idIpa,
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
-      Optional<String> codiceIpa, Optional<String> denominazioneEnte, 
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte,
+      Optional<String> ruleName,
       Optional<Boolean> isLeaf,
       Optional<Integer> status, Optional<String> workflowId,
       Optional<LocalDate> createdAfter,
@@ -103,21 +108,22 @@ public class ResultDao {
     QResult result = QResult.result;
     BooleanBuilder conditions = 
         findConditions(result, 
-            idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte, 
-            isLeaf, status, workflowId, createdAfter);
+            idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte,
+                ruleName, isLeaf, status, workflowId, createdAfter);
     return repo.findAll(conditions.getValue(), pageable);
   }
 
   public List<Result> find(Optional<Long> idIpa,
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
-      Optional<String> codiceIpa, Optional<String> denominazioneEnte, 
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte,
+      Optional<String> ruleName,
       Optional<Boolean> isLeaf,
       Optional<Integer> status, Optional<String> workflowId,
       Optional<LocalDate> createdAfter) {
     QResult result = QResult.result;
     BooleanBuilder conditions = 
         findConditions(result, 
-            idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte, 
+            idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte, ruleName,
             isLeaf, status, workflowId, createdAfter);
     return StreamSupport.stream(repo.findAll(conditions.getValue()).spliterator(), false)
         .collect(Collectors.toList());
