@@ -324,12 +324,16 @@ public class ResultController {
                     description = "Restituito il risultato ragruppato.")
     })
     @GetMapping("/countAndGroupByWorkflowIdAndStatus")
-    public ResponseEntity<Map<String, List<ResultCountShowDto>>> countAndGroupByWorkflowIdAndStatus(@RequestParam(value = "ruleName",required = false) String ruleName, @RequestParam(value = "workflowIds",required = false) List<String> workflowIds) {
+    public ResponseEntity<Map<String, Map<Integer, Long>>> countAndGroupByWorkflowIdAndStatus(@RequestParam(value = "ruleName", required = false) String ruleName, @RequestParam(value = "workflowIds", required = false) List<String> workflowIds) {
         final List<ResultCount> resultCounts = resultDao.countAndGroupByWorkflowIdAndStatus(ruleName, workflowIds);
         return ResponseEntity.ok().body(
-                mapper.convertCounts(resultCounts)
-                .stream()
-                .collect(Collectors.groupingBy(ResultCountShowDto::getWorkflowId))
+                resultCounts
+                        .stream()
+                        .collect(
+                                Collectors.groupingBy(ResultCount::getWorkflowId,
+                                Collectors.groupingBy(ResultCount::getStatus,
+                                Collectors.summingLong(ResultCount::getCount)))
+                        )
         );
     }
 }

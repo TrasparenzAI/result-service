@@ -56,8 +56,6 @@ public interface ResultMapper {
           expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()))")
   List<ResultShowDto> convert(List<Result> results);
 
-  List<ResultCountShowDto> convertCounts(List<ResultCount> resultsCounts);
-
   @Mapping(source ="company", target = "company", qualifiedByName = "company-csv-mapping")
   @Mapping(target = "destinationUrl", 
       expression = "java(it.cnr.anac.transparency.result.utils.UrlResolver.getDestinationUrl(result.getRealUrl(), result.getUrl()).orElse(null))")
