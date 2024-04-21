@@ -17,9 +17,11 @@
 package it.cnr.anac.transparency.result.repositories;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQuery;
 import it.cnr.anac.transparency.result.models.QResult;
 import it.cnr.anac.transparency.result.models.Result;
+import it.cnr.anac.transparency.result.models.ResultCount;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
@@ -30,6 +32,7 @@ import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 /**
@@ -53,6 +56,28 @@ public class ResultDao {
           .orderBy(result.id.desc()).limit(1)
           .select(result)
           .fetchFirst());
+  }
+
+  public List<ResultCount> countAndGroupByWorkflowIdAndStatus(String ruleName, List<String> workflowId) {
+    QResult result = QResult.result;
+    JPAQuery<Result> query = new JPAQuery<Result>(entityManager);
+    if (Optional.ofNullable(ruleName).filter(string -> !string.isEmpty()).isPresent()) {
+      query = query.where(new BooleanBuilder(result.ruleName.eq(ruleName)));
+    }
+    if (Optional.ofNullable(workflowId).filter(strings -> !strings.isEmpty()).isPresent()) {
+      query = query.where(new BooleanBuilder(result.workflowId.in(workflowId)));
+    }
+    return query
+            .from(result)
+            .groupBy(result.workflowId, result.status)
+            .select(Projections.constructor(
+                    ResultCount.class,
+                    result.workflowId,
+                    result.status,
+                    result.count()
+            ))
+            .orderBy(result.workflowId.desc(), result.status.asc())
+            .fetch();
   }
 
   private BooleanBuilder findConditions(QResult result, Optional<Long> idIpa,
@@ -119,13 +144,13 @@ public class ResultDao {
       Optional<String> ruleName,
       Optional<Boolean> isLeaf,
       Optional<Integer> status, Optional<String> workflowId,
-      Optional<LocalDate> createdAfter) {
+      Optional<LocalDate> createdAfter, Sort sort) {
     QResult result = QResult.result;
     BooleanBuilder conditions = 
         findConditions(result, 
             idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte, ruleName,
             isLeaf, status, workflowId, createdAfter);
-    return StreamSupport.stream(repo.findAll(conditions.getValue()).spliterator(), false)
+    return StreamSupport.stream(repo.findAll(conditions.getValue(), sort).spliterator(), false)
         .collect(Collectors.toList());
   }
 }
