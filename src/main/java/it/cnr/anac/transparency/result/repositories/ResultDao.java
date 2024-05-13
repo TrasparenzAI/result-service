@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -42,6 +43,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Component
 public class ResultDao {
+
+  public final static String RESULTS_CACHE_NAME = "results";
 
   private final ResultRepository repo;
 
@@ -121,6 +124,7 @@ public class ResultDao {
     return builder;
   }
 
+  @Cacheable(RESULTS_CACHE_NAME)
   public Page<Result> find(
       Optional<Long> idIpa,
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
