@@ -104,10 +104,10 @@ public class ResultDao {
       builder.and(result.company.denominazioneEnte.containsIgnoreCase(denominazioneEnte.get()));
     }
     if (ruleName.isPresent()) {
-      builder.and(result.ruleName.equalsIgnoreCase(ruleName.get()));
+      builder.and(result.ruleName.eq(ruleName.get()));
     }
     if (workflowId.isPresent()) {
-      builder.and(result.workflowId.equalsIgnoreCase(workflowId.get()));
+      builder.and(result.workflowId.eq(workflowId.get()));
     }
     if (isLeaf.isPresent()) {
       builder.and(result.isLeaf.eq(isLeaf.get()));
