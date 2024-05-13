@@ -35,8 +35,13 @@ public class CachingService {
 
   @CacheEvict(value = ResultDao.RESULTS_CACHE_NAME, allEntries = true)
   @Scheduled(fixedRateString = "${caching.spring.results}")
-  public void evictAllcachesAtIntervals() {
+  public void evictResultsCachesAtIntervals() {
     log.info("Svuota la cache dei risultati");
   }
 
+  @CacheEvict(value = ResultDao.RESULTS_GROUPED_BY_CACHE_NAME, allEntries = true)
+  @Scheduled(fixedRateString = "${caching.spring.results}")
+  public void evictResultsGroupedByCachesAtIntervals() {
+    log.info("Svuota la cache dei risultati aggregati");
+  }
 }

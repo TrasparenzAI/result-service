@@ -45,6 +45,7 @@ import org.springframework.stereotype.Component;
 public class ResultDao {
 
   public final static String RESULTS_CACHE_NAME = "results";
+  public final static String RESULTS_GROUPED_BY_CACHE_NAME = "resultsGroupedBy";
 
   private final ResultRepository repo;
 
@@ -61,6 +62,7 @@ public class ResultDao {
           .fetchFirst());
   }
 
+  @Cacheable(RESULTS_GROUPED_BY_CACHE_NAME)
   public List<ResultCount> countAndGroupByWorkflowIdAndStatus(String ruleName, List<String> workflowId) {
     QResult result = QResult.result;
     JPAQuery<Result> query = new JPAQuery<Result>(entityManager);
