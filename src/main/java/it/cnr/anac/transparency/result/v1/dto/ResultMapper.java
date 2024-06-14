@@ -16,16 +16,19 @@
  */
 package it.cnr.anac.transparency.result.v1.dto;
 
-import it.cnr.anac.transparency.result.models.ResultCount;
-import org.mapstruct.*;
-import it.cnr.anac.transparency.result.models.Company;
-import it.cnr.anac.transparency.result.models.Result;
-import it.cnr.anac.transparency.result.models.StorageData;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.Named;
+
+import it.cnr.anac.transparency.result.models.Company;
+import it.cnr.anac.transparency.result.models.Result;
+import it.cnr.anac.transparency.result.models.StorageData;
 
 /**
  * Mapping dei dati delle Entity nei rispettivi DTO.

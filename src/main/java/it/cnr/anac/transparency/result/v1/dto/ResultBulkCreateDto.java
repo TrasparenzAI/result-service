@@ -16,11 +16,10 @@
  */
 package it.cnr.anac.transparency.result.v1.dto;
 
+import java.util.List;
+
 import lombok.Data;
 import lombok.ToString;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Data transfer object per le informazioni relativa alla creazione di un risultato di validazione.

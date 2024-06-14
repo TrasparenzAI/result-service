@@ -63,6 +63,10 @@ public class ResultDao {
   }
 
   @Cacheable(RESULTS_GROUPED_BY_CACHE_NAME)
+  public List<ResultCount> countAndGroupByWorkflowIdAndStatusWithCache(String ruleName, List<String> workflowId) {
+    return countAndGroupByWorkflowIdAndStatus(ruleName, workflowId);
+  }
+
   public List<ResultCount> countAndGroupByWorkflowIdAndStatus(String ruleName, List<String> workflowId) {
     QResult result = QResult.result;
     JPAQuery<Result> query = new JPAQuery<Result>(entityManager);
@@ -127,6 +131,19 @@ public class ResultDao {
   }
 
   @Cacheable(RESULTS_CACHE_NAME)
+  public Page<Result> findWithCache(
+      Optional<Long> idIpa,
+      Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
+      Optional<String> codiceIpa, Optional<String> denominazioneEnte,
+      Optional<String> ruleName,
+      Optional<Boolean> isLeaf,
+      Optional<Integer> status, Optional<String> workflowId,
+      Optional<LocalDate> createdAfter,
+      Pageable pageable) {
+    return find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa, denominazioneEnte, 
+        ruleName, isLeaf, status, workflowId, createdAfter, pageable);
+  }
+
   public Page<Result> find(
       Optional<Long> idIpa,
       Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
