@@ -89,7 +89,7 @@ public class ResultController {
             description = "Le informazioni sono restituite paginate.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Restitutita una pagina della lista risultati di validazione presenti.")
+                    description = "Restituita una pagina della lista risultati di validazione presenti.")
     })
     @GetMapping(ApiRoutes.LIST)
     public ResponseEntity<Page<ResultShowDto>> list(
@@ -103,14 +103,23 @@ public class ResultController {
             @RequestParam("status") Optional<Integer> status,
             @RequestParam("workflowId") Optional<String> workflowId,
             @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
+            @RequestParam("noCache") Optional<Boolean> noCache,
             @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}")
             Pageable pageable) {
         codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ?
                 Optional.empty() : codiceCategoria;
-        val results =
-                resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                                denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
-                        .map(mapper::convert);
+        Page<ResultShowDto> results = null;
+        if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
+          results =
+              resultDao.findWithCache(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                  denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
+              .map(mapper::convert);
+        } else {
+          results =
+              resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                  denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
+              .map(mapper::convert);
+        }
         return ResponseEntity.ok().body(results);
     }
 
@@ -324,8 +333,17 @@ public class ResultController {
                     description = "Restituito il risultato ragruppato.")
     })
     @GetMapping("/countAndGroupByWorkflowIdAndStatus")
-    public ResponseEntity<Map<String, Map<Integer, Long>>> countAndGroupByWorkflowIdAndStatus(@RequestParam(value = "ruleName", required = false) String ruleName, @RequestParam(value = "workflowIds", required = false) List<String> workflowIds) {
-        final List<ResultCount> resultCounts = resultDao.countAndGroupByWorkflowIdAndStatus(ruleName, workflowIds);
+    public ResponseEntity<Map<String, Map<Integer, Long>>> countAndGroupByWorkflowIdAndStatus(
+        @RequestParam(value = "ruleName", required = false) String ruleName, 
+        @RequestParam(value = "workflowIds", required = false) List<String> workflowIds,
+        @RequestParam("noCache") Optional<Boolean> noCache) {
+        List<ResultCount> resultCounts = null;
+        if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
+          resultCounts = resultDao.countAndGroupByWorkflowIdAndStatusWithCache(ruleName, workflowIds);
+        } else {
+          resultCounts = resultDao.countAndGroupByWorkflowIdAndStatus(ruleName, workflowIds);
+        }
+
         return ResponseEntity.ok().body(
                 resultCounts
                         .stream()

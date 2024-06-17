@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     info = @Info(title = "Transparency Results Service", 
-    version = "0.1.9", 
+    version = "0.1.10", 
     description = "Transparency Results Service si occupa di gestire i risultati delle verifiche di conformità "
         + "sulla legge della trasparenza del decreto legge 33/2013 per i siti degli enti pubblici italiani."),
     servers = {
