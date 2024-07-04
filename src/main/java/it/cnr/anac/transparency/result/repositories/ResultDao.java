@@ -85,7 +85,6 @@ public class ResultDao {
                     result.status,
                     result.count()
             ))
-            .orderBy(result.workflowId.desc(), result.status.asc())
             .fetch();
   }
 
