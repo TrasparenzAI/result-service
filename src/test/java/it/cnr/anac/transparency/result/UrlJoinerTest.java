@@ -48,6 +48,18 @@ public class UrlJoinerTest {
     Assertions.assertTrue(joined.isPresent());
     Assertions.assertEquals("https://www.cnr.it/#", joined.get());
 
+    joined = UrlResolver.getDestinationUrl("https://www.cnr.it", "javascript:");
+    Assertions.assertTrue(joined.isPresent());
+    Assertions.assertEquals("https://www.cnr.it/", joined.get());
+
+    joined = UrlResolver.getDestinationUrl("https://www.cnr.it", "javascript:");
+    Assertions.assertTrue(joined.isPresent());
+    Assertions.assertEquals("https://www.cnr.it/", joined.get());
+
+    joined = UrlResolver.getDestinationUrl("https://www.cnr.it", "javascript: void()");
+    Assertions.assertTrue(joined.isPresent());
+    Assertions.assertEquals("https://www.cnr.it/", joined.get());
+
   }
 
   @Test
