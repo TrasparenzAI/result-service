@@ -31,8 +31,9 @@ public class UrlResolver {
     if (base == null || target == null) {
       return Optional.empty();
     }
+    
     base = sanitize(base);
-    target = sanitize(target);
+    target = sanitize(normalizedTarget(target));
     try {
       //Se il target è già un URL assoluta viene restituita quella
       URIBuilder uriBuilderTarget = new URIBuilder(target);
@@ -82,5 +83,18 @@ public class UrlResolver {
   private static String sanitizeBaseUrl(String baseUrl) {
     //XXX: è corretto fare questa semplificazione?
     return baseUrl.replace("\\", "");
+  }
+
+  private static String normalizedTarget(String target) {
+    if (!Strings.isNullOrEmpty(target) && target.toLowerCase().replaceAll("\\s", "").startsWith("javascript:void(")) {
+      return "/";
+    }
+    if (!Strings.isNullOrEmpty(target) && target.toLowerCase().replaceAll("\\s", "").equals("javascript:")) {
+      return "/";
+    }
+    if (!Strings.isNullOrEmpty(target) && target.toLowerCase().replaceAll("\\s", "").equals("javascript:;")) {
+      return "/";
+    }
+    return target;
   }
 }
