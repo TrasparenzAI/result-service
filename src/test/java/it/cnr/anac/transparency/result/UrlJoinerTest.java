@@ -60,6 +60,10 @@ public class UrlJoinerTest {
     Assertions.assertTrue(joined.isPresent());
     Assertions.assertEquals("https://www.cnr.it/", joined.get());
 
+    joined = UrlResolver.getDestinationUrl("https://www.parcoaveto.it/amministrazione-trasparente.php", "?l1=1");
+    Assertions.assertTrue(joined.isPresent());
+    Assertions.assertEquals("https://www.parcoaveto.it/amministrazione-trasparente.php?l1=1", joined.get());
+
   }
 
   @Test

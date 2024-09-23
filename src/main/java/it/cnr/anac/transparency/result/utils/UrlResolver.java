@@ -52,6 +52,10 @@ public class UrlResolver {
         return Optional.empty();
       }
       URI baseUri = uriBuilderBase.build().normalize();
+      //Se il traget inizia con ? allora viene restituita semplicemente la concatenazione
+      if (!Strings.isNullOrEmpty(baseUri.getPath()) && target.startsWith("?")) {
+        return Optional.of(baseUri.toString().concat(target));
+      }
       if (Strings.isNullOrEmpty(baseUri.getPath()) && target.startsWith("..")) {
         target = target.substring(2);
       }
