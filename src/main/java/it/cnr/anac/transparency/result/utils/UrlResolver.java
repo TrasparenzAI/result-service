@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.utils.URIBuilder;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
 
 @Slf4j
@@ -70,6 +71,7 @@ public class UrlResolver {
     url = url.strip();
     url = url.replace(" ", "");
     url = url.replace(" ", "%20");
+    url = HtmlUtils.htmlUnescape(url);
     if (url.contains("?")) {
       String queryParams = url.substring(url.indexOf("?") + 1);
       String baseUrl = url.substring(0, url.indexOf("?"));

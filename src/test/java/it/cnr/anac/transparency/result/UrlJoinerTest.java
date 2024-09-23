@@ -95,6 +95,13 @@ public class UrlJoinerTest {
   }
 
   @Test
+  public void encodeUrl2() {
+    var target = "https&#x3a;&#x2f;&#x2f;www&#x2e;regione&#x2e;veneto&#x2e;it&#x2f;organizzazione";
+    val sanitizedTarget = UrlResolver.sanitize(target);
+    Assertions.assertEquals("https://www.regione.veneto.it/organizzazione", sanitizedTarget);
+  }
+
+  @Test
   public void saniteUrl() {
     var url = "http://og.maggioli.cloud/ATGovWeb/BURAGODIMOLGORA/EntryPoint.aspx ";
     var sanitizedUrl = UrlResolver.sanitize(url);
