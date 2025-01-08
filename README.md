@@ -23,6 +23,30 @@ Transparency Results Service fornisce alcuni servizi REST utilizzabili in produz
 I servizi REST sono documentati tramite OpenAPI consultabile all'indirizzo /swagger-ui/index.html.
 L'OpenAPI del servizio di devel è disponibile all'indirizzo https://dica33.ba.cnr.it/result-service/swagger-ui/index.html.
 
+# <img src="https://www.docker.com/wp-content/uploads/2021/10/Moby-logo-sm.png" width=80> Startup
+
+#### _Per avviare una istanza del result-service con postgres locale_
+
+Il result-service può essere facilmente installato via docker compose su server Linux utilizzando il file 
+docker-compose.yml presente in questo repository.
+
+Accertati di aver installato docker e il plugin di docker `compose` dove vuoi installare il result-service e in seguito
+esegui il comando successivo per un setup di esempio.
+
+```
+curl -fsSL https://raw.githubusercontent.com/cnr-anac/result-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
+```
+
+Collegarsi a http://localhost:8080/swagger-ui/index.html per visualizzare la documentazione degli endpoint REST presenti nel servizio. 
+
+## Backups
+
+Il servizio mantiene le informazioni relative alla configurazione nel db postgres, quindi è opportuno fare il backup
+del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/cnr-anac/result-service/blob/main/backups.sh) per effettuare i backup.
+
+All'interno dello script backups.sh è necessario impostare il corretto path dove si trova il docker-compose.yml del progetto, tramite la
+variabile `SERVICE_DIR`.
+
 ## 👏 Come Contribuire 
 
 E' possibile contribuire a questo progetto utilizzando le modalità standard della comunità opensource 
