@@ -1,7 +1,7 @@
 # Transparency Results Service
 ## Transparency Results - REST Services
 
-[![Supported JVM Versions](https://img.shields.io/badge/JVM-11-brightgreen.svg?style=for-the-badge&logo=Java)](https://openjdk.java.net/install/)
+[![Supported JVM Versions](https://img.shields.io/badge/JVM-21-brightgreen.svg?style=for-the-badge&logo=Java)](https://openjdk.java.net/install/)
 
 Transparency Results Service è parte della suite di servizi per la verifica delle informazioni sulla
 Trasparenza dei siti web delle Pubbliche amministrazioni italiane.
