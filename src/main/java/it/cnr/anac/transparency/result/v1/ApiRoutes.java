@@ -23,7 +23,7 @@ package it.cnr.anac.transparency.result.v1;
 public class ApiRoutes {
 
   private static final String ONLY_DIGITS_REGEX = "^\\d+$";
-  //private static final String ALPHANUMERIC_SPECIALS_REGEX = "^\\d*[a-zA-Z\\W].*$";
+  private static final String ALL_CHAR_REGEX = ".*$";
 
   public static final String BASE_PATH = "/v1";
 
@@ -39,5 +39,5 @@ public class ApiRoutes {
   public static final String UPDATE = "";
   public static final String PATCH = "/patch/" + ID_REGEX;
   public static final String DELETE = "/" + ID_REGEX;
-
+  public static final String DELETE_BY_WORKFLOW_ID = "/byWorkflow/" + "{id:" + ALL_CHAR_REGEX + "}";
 }

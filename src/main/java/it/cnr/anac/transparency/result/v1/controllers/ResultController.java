@@ -220,6 +220,21 @@ public class ResultController {
     }
 
     @Operation(
+        summary = "Eliminazione dei risultati di validazione associati a un workflow id.",
+        description = "Eliminazione definitiva di tutti i risultati di validazione associati a un workflow id.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Risultati eliminati correttamente")
+    })
+    @DeleteMapping(ApiRoutes.DELETE_BY_WORKFLOW_ID)
+    ResponseEntity<Long> deleteByWorkflowId(
+        @NotNull @PathVariable("id") String id) {
+      log.debug("ResultController::deleteByWorkflowId workflowId = {}", id);
+      val deleted = resultRepository.deleteByWorkflowId(id);
+      log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
+      return ResponseEntity.ok(deleted);
+    }
+
+    @Operation(
             summary = "Visualizzazione dei risultati di validazione presenti nel sistema.",
             description = "Le informazioni sono restituite in formato CSV, è possibile filtrare i risultati"
                     + "mostrati con i parameti disponibili e limitare i risultati utilizzando la paginazione'. "
