@@ -17,7 +17,10 @@
 package it.cnr.anac.transparency.result;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Configuration;
 
@@ -27,14 +30,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     info = @Info(title = "Transparency Results Service", 
-    version = "0.1.11", 
+    version = "0.2.0", 
     description = "Transparency Results Service si occupa di gestire i risultati delle verifiche di conformità "
         + "sulla legge della trasparenza del decreto legge 33/2013 per i siti degli enti pubblici italiani."),
     servers = {
         @Server(url = "/result-service", description = "Transparency Results Service URL"),
         @Server(url = "/", description = "Transparency Results Service URL")}
     )
+@SecuritySchemes(value = {
+    @SecurityScheme(
+        name = "bearer_authentication",
+        type = SecuritySchemeType.HTTP,
+        bearerFormat = "JWT",
+        scheme = "bearer")
+})
 public class OpenApiConfiguration {
 
-  //Empty class
+  public static final String BEARER_AUTHENTICATION = "Bearer Authentication";
+
 }

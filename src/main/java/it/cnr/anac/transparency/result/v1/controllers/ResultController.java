@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.models.ResultCount;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@SecurityRequirement(name = "bearer_authentication")
 @Tag(
         name = "Result Controller",
         description = "Gestione delle informazioni dei risultati di validazione dei siti delle PA")
