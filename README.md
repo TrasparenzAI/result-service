@@ -37,6 +37,7 @@ mostrare nell'esempio seguente:
 Per l'accesso in HTTP GET all'API è sufficiente essere autenticati, per gli endpoint accessibili
 con PUT/POST/DELETE è necessario oltre che essere autenticati che il token OAuth contenga un 
 role ADMIN o SUPERUSER.
+
 # <img src="https://www.docker.com/wp-content/uploads/2021/10/Moby-logo-sm.png" width=80> Startup
 
 #### _Per avviare una istanza del result-service con postgres locale_
