@@ -1,18 +1,18 @@
-# Transparency Results Service
-## Transparency Results - REST Services
+# Result Service
+## Result - REST Services
 
-[![Supported JVM Versions](https://img.shields.io/badge/JVM-21-brightgreen.svg?style=for-the-badge&logo=Java)](https://openjdk.java.net/install/)
+[![Supported JVM Versions](https://img.shields.io/badge/JVM-17-brightgreen.svg?style=for-the-badge&logo=Java)](https://openjdk.java.net/install/)
 
-Transparency Results Service è parte della suite di servizi per la verifica delle informazioni sulla
+Result Service è parte della suite di servizi per la verifica delle informazioni sulla
 Trasparenza dei siti web delle Pubbliche amministrazioni italiane.
  
-## Transparency Results Service
+## Result Service
 
-Transparency Results Service è il componente che si occupa di gestire i risultati delle verifiche 
+Result Service è il componente che si occupa di gestire i risultati delle verifiche 
 sulla corrispondenza dei siti degli enti pubblici italiani in relazione al decreto legge 33/2013 
 sulla transparenza.
 
-Transparency Results Service fornisce alcuni servizi REST utilizzabili in produzione per:
+Result Service fornisce alcuni servizi REST utilizzabili in produzione per:
 
  - inserire, aggiornare e cancellare all'interno del servizio le informazioni di una verifica 
    effettuata su un sito web di una PA
