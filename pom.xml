@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>it.cnr.anac.transparency</groupId>
 	<artifactId>transparency-result-service</artifactId>
-	<version>0.2.0</version>
+	<version>0.2.1</version>
 	<name>Transparency Result Service</name>
 	<description>Servizio Risultati trasparenza siti PA</description>
 	<properties>
