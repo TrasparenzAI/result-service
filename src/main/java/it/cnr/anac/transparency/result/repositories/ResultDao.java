@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2025 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -22,6 +22,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import it.cnr.anac.transparency.result.models.QResult;
 import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.models.ResultCount;
+import it.cnr.anac.transparency.result.models.StorageData;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.time.LocalDate;
@@ -174,5 +175,10 @@ public class ResultDao {
             isLeaf, status, workflowId, createdAfter);
     return StreamSupport.stream(repo.findAll(conditions.getValue(), sort).spliterator(), false)
         .collect(Collectors.toList());
+  }
+
+  public List<StorageData> storageDataByWorkflowId(String workflowId) {
+    return repo.findByWorkflowIdAndStorageDataNotEmpty(workflowId)
+        .stream().map(r -> r.getStorageData()).collect(Collectors.toList());
   }
 }

@@ -20,6 +20,11 @@ Result Service fornisce alcuni servizi REST utilizzabili in produzione per:
  - mostrare la lista delle verifiche effettuate
  - esportare in CSV i risultati delle validazioni presenti
 
+Il Result Service si occupa anche di cancellare dal Minio i sorgenti HTML e gli Screenshot associati
+ai risultati di validazione ogni qual volta i risultati di validazione vengono cancellati.
+Per questo motivo è necessario fornire al servizio, tramite la propria configurazione, anche le
+variabili d'accesso al `Minio`.
+
 I servizi REST sono documentati tramite OpenAPI consultabile all'indirizzo /swagger-ui/index.html.
 L'OpenAPI del servizio di devel è disponibile all'indirizzo https://dica33.ba.cnr.it/result-service/swagger-ui/index.html.
 
@@ -51,6 +56,9 @@ esegui il comando successivo per un setup di esempio.
 ```
 curl -fsSL https://raw.githubusercontent.com/cnr-anac/result-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
 ```
+
+Configurare nel file `.env` l'url e le credenziali per l'accesso al Minio, tramite le variabili d'ambiente
+`MINIO_URL`, `MINIO_ACCESS_KEY`, `MINIO_ACCESS_PASSWORD`.
 
 Collegarsi a http://localhost:8080/swagger-ui/index.html per visualizzare la documentazione degli endpoint REST presenti nel servizio. 
 
