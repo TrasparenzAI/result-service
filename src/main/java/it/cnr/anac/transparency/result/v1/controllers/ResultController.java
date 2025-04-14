@@ -27,6 +27,7 @@ import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.models.ResultCount;
 import it.cnr.anac.transparency.result.repositories.ResultDao;
 import it.cnr.anac.transparency.result.repositories.ResultRepository;
+import it.cnr.anac.transparency.result.services.CachingService;
 import it.cnr.anac.transparency.result.services.CsvExportService;
 import it.cnr.anac.transparency.result.v1.ApiRoutes;
 import it.cnr.anac.transparency.result.v1.dto.*;
@@ -68,6 +69,7 @@ public class ResultController {
     private final ResultMapper mapper;
     private final DtoToEntityConverter dtoToEntityConverter;
     private final CsvExportService csvExportService;
+    private final CachingService cachingService;
 
     @Operation(
             summary = "Visualizzazione delle informazioni di un risultato di validazione.")
@@ -218,6 +220,7 @@ public class ResultController {
                 .orElseThrow(() -> new EntityNotFoundException("Result non trovato con id = " + id));
         resultRepository.delete(result);
         log.info("Eliminato definitivamente result {}", result);
+        cachingService.evictResultsCachesAtIntervals();
         return ResponseEntity.ok().build();
     }
 
