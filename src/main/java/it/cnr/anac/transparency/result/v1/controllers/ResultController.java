@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2025 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -29,6 +29,7 @@ import it.cnr.anac.transparency.result.repositories.ResultDao;
 import it.cnr.anac.transparency.result.repositories.ResultRepository;
 import it.cnr.anac.transparency.result.services.CachingService;
 import it.cnr.anac.transparency.result.services.CsvExportService;
+import it.cnr.anac.transparency.result.services.MinioService;
 import it.cnr.anac.transparency.result.v1.ApiRoutes;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -70,6 +71,7 @@ public class ResultController {
     private final DtoToEntityConverter dtoToEntityConverter;
     private final CsvExportService csvExportService;
     private final CachingService cachingService;
+    private final MinioService minioService;
 
     @Operation(
             summary = "Visualizzazione delle informazioni di un risultato di validazione.")
@@ -220,6 +222,8 @@ public class ResultController {
                 .orElseThrow(() -> new EntityNotFoundException("Result non trovato con id = " + id));
         resultRepository.delete(result);
         log.info("Eliminato definitivamente result {}", result);
+        //Elimino eventuali sorgenti e screenshot dal Minio
+        minioService.deleteStorageData(result.getStorageData());
         cachingService.evictResultsCachesAtIntervals();
         return ResponseEntity.ok().build();
     }
@@ -236,6 +240,12 @@ public class ResultController {
       log.debug("ResultController::deleteByWorkflowId workflowId = {}", id);
       val deleted = resultRepository.deleteByWorkflowId(id);
       log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
+
+      cachingService.evictResultsCachesAtIntervals();
+
+      //Avvio la rimozione asincrona degli eventuali oggetti (sorgente e screenshot) salvati nel Minio
+      minioService.removeObjects(resultDao.storageDataByWorkflowId(id));
+
       return ResponseEntity.ok(deleted);
     }
 
@@ -374,4 +384,20 @@ public class ResultController {
                         )
         );
     }
+
+    @Operation(
+        summary = "Visualizzazione delle informazioni sui file nello Storage di un workflowId",
+            description = "Lista delle info dei file nllo storage salvati per un determinato workflow.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200",
+            description = "Restituita la lista dei riferimenti nel sistema di storage presenti per il workflow indicato.")
+    })
+    @GetMapping(ApiRoutes.LIST + "/storageData")
+    public ResponseEntity<List<StorageDataShowDto>> storageDataByWorkflowId(@RequestParam("workflowId") String workflowId) {
+      val results =
+          resultDao.storageDataByWorkflowId(workflowId)
+          .stream().map(mapper::convert).collect(Collectors.toList());
+      return ResponseEntity.ok().body(results);
+    }
+
 }

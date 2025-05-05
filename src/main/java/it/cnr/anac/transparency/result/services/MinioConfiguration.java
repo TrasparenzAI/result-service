@@ -14,22 +14,31 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.result;
+package it.cnr.anac.transparency.result.services;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@EnableAsync
-@EnableCaching
-@EnableScheduling
-@SpringBootApplication
-public class TransparencyResultServiceApplication {
+import io.minio.MinioClient;
 
-	public static void main(String[] args) {
-		SpringApplication.run(TransparencyResultServiceApplication.class, args);
-	}
+@Configuration
+public class MinioConfiguration {
 
+  @Value("${minio.url}")
+  private String url;
+  
+  @Value("${minio.access.key}")
+  private String accessKey;
+  
+  @Value("${minio.access.secret}")
+  private String accessSecret;
+
+  @Bean
+  public MinioClient minioClient() {
+      return MinioClient.builder()
+              .endpoint(url)
+              .credentials(accessKey, accessSecret)
+              .build();
+  }
 }
