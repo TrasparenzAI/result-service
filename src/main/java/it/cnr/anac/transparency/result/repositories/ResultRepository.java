@@ -31,9 +31,9 @@ public interface ResultRepository extends JpaRepository<Result,Long>, QuerydslPr
   public long deleteByWorkflowId(String workflowId);
 
   @Query("SELECT r FROM Result r "
-      + "WHERE r.storageData.objectBucket IS NOT NULL "
-      + "AND r.storageData.objectBucket <> '' "
-      + "AND r.workflowId = ?1")
+      + "WHERE r.workflowId = ?1 AND "
+      + "((r.storageData.objectBucket IS NOT NULL AND r.storageData.objectBucket <> '') "
+      + "OR (r.storageData.screenshotBucket IS NOT NULL AND r.storageData.screenshotBucket <> ''))")
   public List<Result> findByWorkflowIdAndStorageDataNotEmpty(String workflowId);
 
 }

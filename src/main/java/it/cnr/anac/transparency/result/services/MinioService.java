@@ -14,6 +14,8 @@ import java.util.concurrent.CompletableFuture;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import com.google.common.base.Strings;
+
 import io.minio.MinioClient;
 import io.minio.RemoveObjectArgs;
 import io.minio.errors.ErrorResponseException;
@@ -41,7 +43,7 @@ public class MinioService {
 
   @Async
   public CompletableFuture<Integer> removeObjects(List<StorageData> storageDataList) {
-
+    log.info("Objects to remove = {}", storageDataList.size());
     int deleted = 0;
     for (StorageData storageData : storageDataList) {
       deleted += deleteStorageData(storageData);
@@ -51,44 +53,51 @@ public class MinioService {
 
   public Integer deleteStorageData(StorageData storageData) {
     int deleted = 0;
-    if (removeSource(storageData)) {
-      deleted++;
+    if (!Strings.isNullOrEmpty(storageData.getObjectBucket())) {
+      if (removeSource(storageData)) {
+        deleted++;
+      }
     }
-    if (removeScreenshot(storageData)) {
-      deleted++;
+
+    if (!Strings.isNullOrEmpty(storageData.getScreenshotBucket())) {
+      if (removeScreenshot(storageData)) {
+        deleted++;
+      }
     }
     return deleted;
   }
 
   private boolean removeSource(StorageData storageData) {
+    log.debug("Removing source for storageData {}", storageData);
     try {
       minioClient.removeObject(
           RemoveObjectArgs.builder()
             .bucket(storageData.getObjectBucket()).object(storageData.getObjectId()).build());
       log.info("Eliminato sorgente html da storage esterno bucket = {}, id = {}", 
-          storageData.getObjectBucket(), storageData.getObjectBucket());
+          storageData.getObjectBucket(), storageData.getObjectId());
       return true;
     } catch (InvalidKeyException | ErrorResponseException | InsufficientDataException | InternalException
         | InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException
         | IllegalArgumentException | IOException e) {
-      log.error("Enabled to remove source bucket = {}, id = {}", 
+      log.error("Unabled to remove source bucket = {}, id = {}", 
           storageData.getObjectBucket(), storageData.getObjectId(), e);
       return false;
     }
   }
 
   private boolean removeScreenshot(StorageData storageData) {
+    log.debug("Removing screenshot for storageData {}", storageData);
     try {
       minioClient.removeObject(
           RemoveObjectArgs.builder()
             .bucket(storageData.getScreenshotBucket()).object(storageData.getScreenshotId()).build());
       log.info("Eliminata screenshot da storage esterno bucket = {}, id = {}", 
-          storageData.getObjectBucket(), storageData.getObjectBucket());
+          storageData.getScreenshotBucket(), storageData.getScreenshotId());
       return true;
     } catch (InvalidKeyException | ErrorResponseException | InsufficientDataException | InternalException
         | InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException
         | IllegalArgumentException | IOException e) {
-      log.error("Enabled to remove source bucket = {}, id = {}", 
+      log.error("Unabled to remove source bucket = {}, id = {}", 
           storageData.getScreenshotBucket(), storageData.getScreenshotId(), e);
       return false;
     }
