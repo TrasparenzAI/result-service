@@ -54,7 +54,7 @@ Accertati di aver installato docker e il plugin di docker `compose` dove vuoi in
 esegui il comando successivo per un setup di esempio.
 
 ```
-curl -fsSL https://raw.githubusercontent.com/cnr-anac/result-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
+curl -fsSL https://raw.githubusercontent.com/trasparenzai/result-service/main/first-setup.sh -o first-setup.sh && sh first-setup.sh
 ```
 
 Configurare nel file `.env` l'url e le credenziali per l'accesso al Minio, tramite le variabili d'ambiente
@@ -65,7 +65,7 @@ Collegarsi a http://localhost:8080/swagger-ui/index.html per visualizzare la doc
 ## Backups
 
 Il servizio mantiene le informazioni relative alla configurazione nel db postgres, quindi è opportuno fare il backup
-del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/cnr-anac/result-service/blob/main/backups.sh) per effettuare i backup.
+del database a scadenza regolare. Nel repository è presente un file di esempio [backups.sh](https://github.com/trasparenzai/result-service/blob/main/backups.sh) per effettuare i backup.
 
 All'interno dello script backups.sh è necessario impostare il corretto path dove si trova il docker-compose.yml del progetto, tramite la
 variabile `SERVICE_DIR`.
@@ -80,4 +80,4 @@ E' possibile contribuire a questo progetto utilizzando le modalità standard del
 Transparency Results Service è concesso in licenza GNU AFFERO GENERAL PUBLIC LICENSE, come si trova 
 nel file [LICENSE][l].
 
-[l]: https://github.com/cnr-anac/result-service/blob/master/LICENSE
+[l]: https://github.com/trasparenzai/result-service/blob/master/LICENSE
