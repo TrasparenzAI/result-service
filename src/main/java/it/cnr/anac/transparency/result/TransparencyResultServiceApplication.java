@@ -21,11 +21,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 
 @EnableAsync
 @EnableCaching
 @EnableScheduling
 @SpringBootApplication
+@EnableGlobalMethodSecurity(securedEnabled=true)
 public class TransparencyResultServiceApplication {
 
 	public static void main(String[] args) {
