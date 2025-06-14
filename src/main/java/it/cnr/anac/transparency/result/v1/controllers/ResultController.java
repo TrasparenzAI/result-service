@@ -131,6 +131,39 @@ public class ResultController {
 
     @Operation(
             summary = "Visualizzazione dei risultati di validazione presenti nel sistema, filtrabili "
+                    + "solo per Codice IPA e ID del flusso, obbligatori.",
+            description = "Le informazioni sono restituite paginate.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Restituita una pagina della lista risultati di validazione presenti.")
+    })
+
+    @GetMapping(ApiRoutes.CODICE_IPA)
+    public ResponseEntity<Page<ResultShowDto>> codiceIpa(
+            @RequestParam(value = "codiceIpa") String codiceIpa,
+            @RequestParam(value = "workflowId") String workflowId,
+            @RequestParam("noCache") Optional<Boolean> noCache,
+            @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}")
+            Pageable pageable) {
+        Page<ResultShowDto> results = null;
+        if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
+            results =
+                    resultDao.findWithCache(Optional.empty(), Optional.empty(), Optional.empty(),
+                                    Optional.of(codiceIpa), Optional.empty(), Optional.empty(), Optional.empty(),
+                                    Optional.empty(), Optional.of(workflowId), Optional.empty(), pageable)
+                            .map(mapper::convert);
+        } else {
+            results =
+                    resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(codiceIpa),
+                                    Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+                                    Optional.of(workflowId), Optional.empty(), pageable)
+                            .map(mapper::convert);
+        }
+        return ResponseEntity.ok().body(results);
+    }
+
+    @Operation(
+            summary = "Visualizzazione dei risultati di validazione presenti nel sistema, filtrabili "
                     + "utilizzando alcuni parametri.",
             description = "Sono restitutite tutte informazioni, in modo non paginato.")
     @ApiResponses(value = {
