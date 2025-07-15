@@ -50,15 +50,19 @@ public class UrlJoinerTest {
 
     joined = UrlResolver.getDestinationUrl("https://www.cnr.it", "javascript:");
     Assertions.assertTrue(joined.isPresent());
-    Assertions.assertEquals("https://www.cnr.it/", joined.get());
+    Assertions.assertEquals("https://www.cnr.it", joined.get());
 
     joined = UrlResolver.getDestinationUrl("https://www.cnr.it", "javascript:");
     Assertions.assertTrue(joined.isPresent());
-    Assertions.assertEquals("https://www.cnr.it/", joined.get());
+    Assertions.assertEquals("https://www.cnr.it", joined.get());
 
     joined = UrlResolver.getDestinationUrl("https://www.cnr.it", "javascript: void()");
     Assertions.assertTrue(joined.isPresent());
-    Assertions.assertEquals("https://www.cnr.it/", joined.get());
+    Assertions.assertEquals("https://www.cnr.it", joined.get());
+
+    joined = UrlResolver.getDestinationUrl("https://www.cnr.it/it/amministrazione-trasparente", "javascript:void(0);");
+    Assertions.assertTrue(joined.isPresent());
+    Assertions.assertEquals("https://www.cnr.it/it/amministrazione-trasparente", joined.get());
 
     joined = UrlResolver.getDestinationUrl("https://www.parcoaveto.it/amministrazione-trasparente.php", "?l1=1");
     Assertions.assertTrue(joined.isPresent());

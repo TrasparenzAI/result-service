@@ -62,13 +62,20 @@ public class UrlResolver {
       if (Strings.isNullOrEmpty(baseUri.getPath()) && target.startsWith("#")) {
         baseUri = baseUri.resolve("/");
       }
-      URI destination = baseUri.resolve(target);
+      URI destination = safeResolve(baseUri, target);
       return Optional.of(destination.normalize().toString());
     } catch (URISyntaxException e) {
       log.info("Error during join of {} and {}. {}", base, target, 
           e.toString().substring(0, Math.min(300, e.toString().length())));
       return Optional.empty();
     }
+  }
+
+  public static URI safeResolve(URI base, String path) {
+    if ("/".equals(path)) {
+      return base;
+    }
+    return base.resolve(path);
   }
 
   public static String sanitize(String url) {
