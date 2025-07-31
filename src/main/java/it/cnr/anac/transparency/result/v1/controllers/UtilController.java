@@ -76,7 +76,7 @@ public class UtilController {
                     description = "La URL calcolata non risulta valida.",
                     content = @Content)
     })
-    @GetMapping(ApiRoutes.DESTINATION_URL)
+    @PostMapping(ApiRoutes.DESTINATION_URL)
     public ResponseEntity<Map<String, String>> destinationURL(
             @NotNull @Valid @RequestBody DestinationURLDto destinationURLDto
     ) {
