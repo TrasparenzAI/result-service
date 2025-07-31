@@ -51,6 +51,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -76,12 +77,12 @@ public class UtilController {
                     content = @Content)
     })
     @GetMapping(ApiRoutes.DESTINATION_URL)
-    public ResponseEntity<String> destinationURL(
+    public ResponseEntity<Map<String, String>> destinationURL(
             @RequestParam("base") String base,
             @RequestParam("target") String target
     ) {
         return UrlResolver.getDestinationUrl(base, target)
-                .map(s -> ResponseEntity.ok().body(s))
+                .map(s -> ResponseEntity.ok().body(Collections.singletonMap("result", s)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
