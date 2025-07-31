@@ -78,10 +78,9 @@ public class UtilController {
     })
     @GetMapping(ApiRoutes.DESTINATION_URL)
     public ResponseEntity<Map<String, String>> destinationURL(
-            @RequestParam("base") String base,
-            @RequestParam("target") String target
+            @NotNull @Valid @RequestBody DestinationURLDto destinationURLDto
     ) {
-        return UrlResolver.getDestinationUrl(base, target)
+        return UrlResolver.getDestinationUrl(destinationURLDto.getBase(), destinationURLDto.getTarget())
                 .map(s -> ResponseEntity.ok().body(Collections.singletonMap("result", s)))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
