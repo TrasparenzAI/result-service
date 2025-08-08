@@ -16,6 +16,28 @@
  */
 package it.cnr.anac.transparency.result.v1.controllers;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -31,29 +53,20 @@ import it.cnr.anac.transparency.result.services.CachingService;
 import it.cnr.anac.transparency.result.services.CsvExportService;
 import it.cnr.anac.transparency.result.services.MinioService;
 import it.cnr.anac.transparency.result.v1.ApiRoutes;
-import it.cnr.anac.transparency.result.v1.dto.*;
+import it.cnr.anac.transparency.result.v1.dto.DtoToEntityConverter;
+import it.cnr.anac.transparency.result.v1.dto.ResultBulkCreateDto;
+import it.cnr.anac.transparency.result.v1.dto.ResultCreateDto;
+import it.cnr.anac.transparency.result.v1.dto.ResultMapper;
+import it.cnr.anac.transparency.result.v1.dto.ResultShowDto;
+import it.cnr.anac.transparency.result.v1.dto.ResultUpdateDto;
+import it.cnr.anac.transparency.result.v1.dto.StorageDataShowDto;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @SecurityRequirement(name = "bearer_authentication")
 @Tag(
@@ -292,46 +305,39 @@ public class ResultController {
             @ApiResponse(responseCode = "200",
                     description = "Restituito un CSV con la lista dei risultati di validazione presenti.")
     })
-    @GetMapping(ApiRoutes.LIST_AS_CSV)
-    public ResponseEntity<String> listAsCsv(
-            HttpServletResponse servletResponse,
-            @RequestParam("idIpa") Optional<Long> idIpa,
-            @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
-            @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
-            @RequestParam("codiceIpa") Optional<String> codiceIpa,
-            @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
-            @RequestParam("ruleName") Optional<String> ruleName,
-            @RequestParam("isLeaf") Optional<Boolean> isLeaf,
-            @RequestParam("status") Optional<Integer> status,
-            @RequestParam("workflowId") Optional<String> workflowId,
-            @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
-            @Parameter(required = false, example = "false",
-                    description = "Permettere di esportare solo le informazioni principali")
-            @RequestParam("terse") Optional<Boolean> terse,
-            @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
-        codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ?
-                Optional.empty() : codiceCategoria;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", "results.csv");
+   @GetMapping(ApiRoutes.LIST_AS_CSV)
+        public void listAsCsv(
+                HttpServletResponse servletResponse,
+                @RequestParam("idIpa") Optional<Long> idIpa,
+                @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
+                @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
+                @RequestParam("codiceIpa") Optional<String> codiceIpa,
+                @RequestParam("denominazioneEnte") Optional<String> denominazioneEnte,
+                @RequestParam("ruleName") Optional<String> ruleName,
+                @RequestParam("isLeaf") Optional<Boolean> isLeaf,
+                @RequestParam("status") Optional<Integer> status,
+                @RequestParam("workflowId") Optional<String> workflowId,
+                @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
+                @RequestParam("terse") Optional<Boolean> terse,
+                @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
 
-        String csv = null;
+        servletResponse.setContentType("text/csv");
+        servletResponse.setHeader("Content-Disposition", "attachment; filename=\"results.csv\"");
+
+        codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? Optional.empty() : codiceCategoria;
+
         if (terse.isPresent() && terse.get()) {
-            val results =
-                    resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                                    denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
-                            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsvTerse(results);
+                val results = resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                        denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
+                        .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+                csvExportService.resultsToCsvTerseStream(results, servletResponse.getOutputStream());
         } else {
-            val results =
-                    resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                                    denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
-                            .stream().map(mapper::convertCsv).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsv(results);
+                val results = resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                        denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
+                        .stream().map(mapper::convertCsv).collect(Collectors.toList());
+                csvExportService.resultsToCsvStream(results, servletResponse.getOutputStream());
         }
-        return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
-    }
-
+        }
     @Operation(
             summary = "Visualizzazione dei risultati dell'ultima validazione registrata nel sistema.",
             description = "Le informazioni sono restituite in formato CSV, è poissibile limitare "
@@ -342,39 +348,38 @@ public class ResultController {
             @ApiResponse(responseCode = "200",
                     description = "Restituito un CSV con la lista dei risultati dell'ultima validazione.")
     })
+    
     @GetMapping("/lastRunAsCsv")
-    public ResponseEntity<String> listLastRunAsCsv(
-            @Parameter(required = false, example = "false",
-                    description = "Permettere di esportare solo le informazioni principali")
-            @RequestParam("terse") Optional<Boolean> terse, @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
-        Optional<Result> lastResult = resultDao.lastResult();
-        Optional<String> lastWorkflowId = lastResult.isPresent()
-                ? Optional.of(lastResult.get().getWorkflowId()) : Optional.empty();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", "results.csv");
-        String csv = null;
-        if (terse.isPresent() && terse.get()) {
-            val results =
-                    resultDao.find(Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    lastWorkflowId, Optional.empty(), sort)
-                            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsvTerse(results);
-        } else {
-            val results =
-                    resultDao.find(Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    lastWorkflowId, Optional.empty(), sort)
-                            .stream().map(mapper::convertCsv).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsv(results);
-        }
-        return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
+public void listLastRunAsCsv(
+        HttpServletResponse servletResponse,
+        @RequestParam("terse") Optional<Boolean> terse,
+        @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
+
+    Optional<Result> lastResult = resultDao.lastResult();
+    Optional<String> lastWorkflowId = lastResult.isPresent()
+            ? Optional.of(lastResult.get().getWorkflowId()) : Optional.empty();
+
+    servletResponse.setContentType("text/csv");
+    servletResponse.setHeader("Content-Disposition", "attachment; filename=\"results.csv\"");
+
+    if (terse.isPresent() && terse.get()) {
+        val results = resultDao.find(Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(),
+                lastWorkflowId, Optional.empty(), sort)
+                .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+        csvExportService.resultsToCsvTerseStream(results, servletResponse.getOutputStream());
+    } else {
+        val results = resultDao.find(Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(),
+                Optional.empty(), Optional.empty(),
+                lastWorkflowId, Optional.empty(), sort)
+                .stream().map(mapper::convertCsv).collect(Collectors.toList());
+        csvExportService.resultsToCsvStream(results, servletResponse.getOutputStream());
     }
+}
 
     @Operation(
             summary = "Visualizzazione delle informazioni del ultimo risultato memorizzato nel sistema.")
