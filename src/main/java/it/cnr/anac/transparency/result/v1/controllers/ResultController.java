@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import it.cnr.anac.transparency.result.models.Company;
 import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.models.ResultCount;
 import it.cnr.anac.transparency.result.repositories.ResultDao;
@@ -50,9 +51,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SecurityRequirement(name = "bearer_authentication")
@@ -387,6 +386,49 @@ public class ResultController {
         Result lastResult = resultDao.lastResult()
                 .orElseThrow(() -> new EntityNotFoundException("Nessun risultato di validazione trovato"));
         return ResponseEntity.ok().body(mapper.convert(lastResult));
+    }
+
+    @Operation(
+            summary = "Visualizzazione le statistiche per flusso, lista di stati e numero di regole con un min e max.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Restituiti i risultati richiesti.")
+    })
+    @GetMapping("/companiesByWorkflowAndStatus")
+    public ResponseEntity<Page<ResultShowDto>> companiesByWorkflowAndStatusWithOccurencesBetween(
+            @RequestParam(value = "workflowId") String workflowId,
+            @RequestParam(value = "status") List<Integer> status,
+            @RequestParam(value = "minNumberOfRules") Integer minNumberOfRules,
+            @RequestParam(value = "maxNumberOfRules") Integer maxNumberOfRules,
+            @RequestParam(value = "denominazioneEnte", required = false) String denominazioneEnte,
+            @RequestParam(value = "codiceFiscaleEnte", required = false) String codiceFiscaleEnte,
+            @RequestParam(value = "codiceIpa", required = false) String codiceIpa,
+            @RequestParam(value = "codiceCategoria", required = false) String codiceCategoria,
+            @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}")
+            Pageable pageable
+    ) {
+        Page<ResultShowDto> map = resultDao.findCompaniesByWorkflowAndStatusWithOccurencesBetween(
+                workflowId, status, minNumberOfRules, maxNumberOfRules,
+                denominazioneEnte, codiceFiscaleEnte, codiceIpa, codiceCategoria,
+                pageable
+        ).map(mapper::convert);
+        return ResponseEntity.ok().body(map);
+    }
+
+    @Operation(
+            summary = "Visualizzazione delle informazioni presenti nel sistema ragruppate per categorie predefinite filtrando per flusso e stato della regola applicata.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Restituito il risultato ragruppato.")
+    })
+    @GetMapping("/countResultsAndGroupByCategoriesWidthWorkflowIdAndStatus")
+    public ResponseEntity<List<CategoryValueDto>> countResultsAndGroupByCategoriesWidthWorkflowIdAndStatus(
+            @RequestParam(value = "workflowId") String workflowId,
+            @RequestParam(value = "status") List<Integer> status) {
+
+        return ResponseEntity.ok().body(
+                resultDao.countResultsAndGroupByCategoriesWidthWorkflowIdAndStatus(workflowId, status)
+        );
     }
 
     @Operation(

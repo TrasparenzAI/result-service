@@ -25,6 +25,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
@@ -38,9 +39,14 @@ import lombok.ToString;
     name = "results", 
     uniqueConstraints = { @UniqueConstraint(columnNames = { "workflowId", "idIpa", "ruleName" }) })
 @Entity
+@NoArgsConstructor
 public class Result extends MutableModel {
 
   private static final long serialVersionUID = -1398612405357496772L;
+
+  public Result(Company company) {
+    this.company = company;
+  }
 
   @Embedded
   private Company company;
