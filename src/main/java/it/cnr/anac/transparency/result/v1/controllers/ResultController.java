@@ -16,6 +16,29 @@
  */
 package it.cnr.anac.transparency.result.v1.controllers;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import it.cnr.anac.transparency.result.v1.dto.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,7 +46,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import it.cnr.anac.transparency.result.models.Company;
 import it.cnr.anac.transparency.result.models.Result;
 import it.cnr.anac.transparency.result.models.ResultCount;
 import it.cnr.anac.transparency.result.repositories.ResultDao;
@@ -32,27 +54,13 @@ import it.cnr.anac.transparency.result.services.CachingService;
 import it.cnr.anac.transparency.result.services.CsvExportService;
 import it.cnr.anac.transparency.result.services.MinioService;
 import it.cnr.anac.transparency.result.v1.ApiRoutes;
-import it.cnr.anac.transparency.result.v1.dto.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.*;
-import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 @SecurityRequirement(name = "bearer_authentication")
 @Tag(
@@ -115,15 +123,15 @@ public class ResultController {
                 Optional.empty() : codiceCategoria;
         Page<ResultShowDto> results = null;
         if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
-          results =
-              resultDao.findWithCache(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                  denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
-              .map(mapper::convert);
+            results =
+                    resultDao.findWithCache(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                                    denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
+                            .map(mapper::convert);
         } else {
-          results =
-              resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                  denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
-              .map(mapper::convert);
+            results =
+                    resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                                    denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, pageable)
+                            .map(mapper::convert);
         }
         return ResponseEntity.ok().body(results);
     }
@@ -261,24 +269,24 @@ public class ResultController {
     }
 
     @Operation(
-        summary = "Eliminazione dei risultati di validazione associati a un workflow id.",
-        description = "Eliminazione definitiva di tutti i risultati di validazione associati a un workflow id.")
+            summary = "Eliminazione dei risultati di validazione associati a un workflow id.",
+            description = "Eliminazione definitiva di tutti i risultati di validazione associati a un workflow id.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Risultati eliminati correttamente")
+            @ApiResponse(responseCode = "200", description = "Risultati eliminati correttamente")
     })
     @DeleteMapping(ApiRoutes.DELETE_BY_WORKFLOW_ID)
     ResponseEntity<Long> deleteByWorkflowId(
-        @NotNull @PathVariable("id") String id) {
-      log.debug("ResultController::deleteByWorkflowId workflowId = {}", id);
-      val deleted = resultRepository.deleteByWorkflowId(id);
-      log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
+            @NotNull @PathVariable("id") String id) {
+        log.debug("ResultController::deleteByWorkflowId workflowId = {}", id);
+        val deleted = resultRepository.deleteByWorkflowId(id);
+        log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
 
-      cachingService.evictResultsCachesAtIntervals();
+        cachingService.evictResultsCachesAtIntervals();
 
-      //Avvio la rimozione asincrona degli eventuali oggetti (sorgente e screenshot) salvati nel Minio
-      minioService.removeObjects(resultDao.storageDataByWorkflowId(id));
+        //Avvio la rimozione asincrona degli eventuali oggetti (sorgente e screenshot) salvati nel Minio
+        minioService.removeObjects(resultDao.storageDataByWorkflowId(id));
 
-      return ResponseEntity.ok(deleted);
+        return ResponseEntity.ok(deleted);
     }
 
     @Operation(
@@ -292,7 +300,7 @@ public class ResultController {
                     description = "Restituito un CSV con la lista dei risultati di validazione presenti.")
     })
     @GetMapping(ApiRoutes.LIST_AS_CSV)
-    public ResponseEntity<String> listAsCsv(
+    public void listAsCsv(
             HttpServletResponse servletResponse,
             @RequestParam("idIpa") Optional<Long> idIpa,
             @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
@@ -304,33 +312,26 @@ public class ResultController {
             @RequestParam("status") Optional<Integer> status,
             @RequestParam("workflowId") Optional<String> workflowId,
             @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
-            @Parameter(required = false, example = "false",
-                    description = "Permettere di esportare solo le informazioni principali")
             @RequestParam("terse") Optional<Boolean> terse,
             @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
-        codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ?
-                Optional.empty() : codiceCategoria;
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", "results.csv");
 
-        String csv = null;
+        servletResponse.setContentType("text/csv");
+        servletResponse.setHeader("Content-Disposition", "attachment; filename=\"results.csv\"");
+
+        codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ? Optional.empty() : codiceCategoria;
+
         if (terse.isPresent() && terse.get()) {
-            val results =
-                    resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                                    denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
-                            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsvTerse(results);
+            val results = resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                            denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
+                    .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+            csvExportService.resultsToCsvTerseStream(results, servletResponse.getOutputStream());
         } else {
-            val results =
-                    resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                                    denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
-                            .stream().map(mapper::convertCsv).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsv(results);
+            val results = resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                            denominazioneEnte, ruleName, isLeaf, status, workflowId, createdAfter, sort)
+                    .stream().map(mapper::convertCsv).collect(Collectors.toList());
+            csvExportService.resultsToCsvStream(results, servletResponse.getOutputStream());
         }
-        return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
     }
-
     @Operation(
             summary = "Visualizzazione dei risultati dell'ultima validazione registrata nel sistema.",
             description = "Le informazioni sono restituite in formato CSV, è poissibile limitare "
@@ -341,38 +342,37 @@ public class ResultController {
             @ApiResponse(responseCode = "200",
                     description = "Restituito un CSV con la lista dei risultati dell'ultima validazione.")
     })
+
     @GetMapping("/lastRunAsCsv")
-    public ResponseEntity<String> listLastRunAsCsv(
-            @Parameter(required = false, example = "false",
-                    description = "Permettere di esportare solo le informazioni principali")
-            @RequestParam("terse") Optional<Boolean> terse, @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
+    public void listLastRunAsCsv(
+            HttpServletResponse servletResponse,
+            @RequestParam("terse") Optional<Boolean> terse,
+            @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
+
         Optional<Result> lastResult = resultDao.lastResult();
         Optional<String> lastWorkflowId = lastResult.isPresent()
                 ? Optional.of(lastResult.get().getWorkflowId()) : Optional.empty();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-        headers.setContentDispositionFormData("attachment", "results.csv");
-        String csv = null;
+
+        servletResponse.setContentType("text/csv");
+        servletResponse.setHeader("Content-Disposition", "attachment; filename=\"results.csv\"");
+
         if (terse.isPresent() && terse.get()) {
-            val results =
-                    resultDao.find(Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    lastWorkflowId, Optional.empty(), sort)
-                            .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsvTerse(results);
+            val results = resultDao.find(Optional.empty(), Optional.empty(),
+                            Optional.empty(), Optional.empty(),
+                            Optional.empty(), Optional.empty(),
+                            Optional.empty(), Optional.empty(),
+                            lastWorkflowId, Optional.empty(), sort)
+                    .stream().map(mapper::convertCsvTerse).collect(Collectors.toList());
+            csvExportService.resultsToCsvTerseStream(results, servletResponse.getOutputStream());
         } else {
-            val results =
-                    resultDao.find(Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    Optional.empty(), Optional.empty(),
-                                    lastWorkflowId, Optional.empty(), sort)
-                            .stream().map(mapper::convertCsv).collect(Collectors.toList());
-            csv = csvExportService.resultsToCsv(results);
+            val results = resultDao.find(Optional.empty(), Optional.empty(),
+                            Optional.empty(), Optional.empty(),
+                            Optional.empty(), Optional.empty(),
+                            Optional.empty(), Optional.empty(),
+                            lastWorkflowId, Optional.empty(), sort)
+                    .stream().map(mapper::convertCsv).collect(Collectors.toList());
+            csvExportService.resultsToCsvStream(results, servletResponse.getOutputStream());
         }
-        return new ResponseEntity<String>(csv, headers, HttpStatus.OK);
     }
 
     @Operation(
@@ -386,6 +386,50 @@ public class ResultController {
         Result lastResult = resultDao.lastResult()
                 .orElseThrow(() -> new EntityNotFoundException("Nessun risultato di validazione trovato"));
         return ResponseEntity.ok().body(mapper.convert(lastResult));
+    }
+
+    @Operation(
+            summary = "Visualizzazione delle informazioni presenti nel sistema ragruppate per flusso e stato della regola applicata.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Restituito il risultato ragruppato.")
+    })
+    @GetMapping("/countAndGroupByWorkflowIdAndStatus")
+    public ResponseEntity<Map<String, Map<Integer, Long>>> countAndGroupByWorkflowIdAndStatus(
+            @RequestParam(value = "ruleName", required = false) String ruleName,
+            @RequestParam(value = "workflowIds", required = false) List<String> workflowIds,
+            @RequestParam("noCache") Optional<Boolean> noCache) {
+        List<ResultCount> resultCounts = null;
+        if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
+            resultCounts = resultDao.countAndGroupByWorkflowIdAndStatusWithCache(ruleName, workflowIds);
+        } else {
+            resultCounts = resultDao.countAndGroupByWorkflowIdAndStatus(ruleName, workflowIds);
+        }
+
+        return ResponseEntity.ok().body(
+                resultCounts
+                        .stream()
+                        .collect(
+                                Collectors.groupingBy(ResultCount::getWorkflowId,
+                                        Collectors.groupingBy(ResultCount::getStatus,
+                                                Collectors.summingLong(ResultCount::getCount)))
+                        )
+        );
+    }
+
+    @Operation(
+            summary = "Visualizzazione delle informazioni sui file nello Storage di un workflowId",
+            description = "Lista delle info dei file nllo storage salvati per un determinato workflow.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Restituita la lista dei riferimenti nel sistema di storage presenti per il workflow indicato.")
+    })
+    @GetMapping(ApiRoutes.LIST + "/storageData")
+    public ResponseEntity<List<StorageDataShowDto>> storageDataByWorkflowId(@RequestParam("workflowId") String workflowId) {
+        val results =
+                resultDao.storageDataByWorkflowId(workflowId)
+                        .stream().map(mapper::convert).collect(Collectors.toList());
+        return ResponseEntity.ok().body(results);
     }
 
     @Operation(
@@ -429,50 +473,6 @@ public class ResultController {
         return ResponseEntity.ok().body(
                 resultDao.countResultsAndGroupByCategoriesWidthWorkflowIdAndStatus(workflowId, status)
         );
-    }
-
-    @Operation(
-            summary = "Visualizzazione delle informazioni presenti nel sistema ragruppate per flusso e stato della regola applicata.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
-                    description = "Restituito il risultato ragruppato.")
-    })
-    @GetMapping("/countAndGroupByWorkflowIdAndStatus")
-    public ResponseEntity<Map<String, Map<Integer, Long>>> countAndGroupByWorkflowIdAndStatus(
-        @RequestParam(value = "ruleName", required = false) String ruleName, 
-        @RequestParam(value = "workflowIds", required = false) List<String> workflowIds,
-        @RequestParam("noCache") Optional<Boolean> noCache) {
-        List<ResultCount> resultCounts = null;
-        if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
-          resultCounts = resultDao.countAndGroupByWorkflowIdAndStatusWithCache(ruleName, workflowIds);
-        } else {
-          resultCounts = resultDao.countAndGroupByWorkflowIdAndStatus(ruleName, workflowIds);
-        }
-
-        return ResponseEntity.ok().body(
-                resultCounts
-                        .stream()
-                        .collect(
-                                Collectors.groupingBy(ResultCount::getWorkflowId,
-                                Collectors.groupingBy(ResultCount::getStatus,
-                                Collectors.summingLong(ResultCount::getCount)))
-                        )
-        );
-    }
-
-    @Operation(
-        summary = "Visualizzazione delle informazioni sui file nello Storage di un workflowId",
-            description = "Lista delle info dei file nllo storage salvati per un determinato workflow.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200",
-            description = "Restituita la lista dei riferimenti nel sistema di storage presenti per il workflow indicato.")
-    })
-    @GetMapping(ApiRoutes.LIST + "/storageData")
-    public ResponseEntity<List<StorageDataShowDto>> storageDataByWorkflowId(@RequestParam("workflowId") String workflowId) {
-      val results =
-          resultDao.storageDataByWorkflowId(workflowId)
-          .stream().map(mapper::convert).collect(Collectors.toList());
-      return ResponseEntity.ok().body(results);
     }
 
 }
