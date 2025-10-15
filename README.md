@@ -26,7 +26,6 @@ Per questo motivo è necessario fornire al servizio, tramite la propria configur
 variabili d'accesso al `Minio`.
 
 I servizi REST sono documentati tramite OpenAPI consultabile all'indirizzo /swagger-ui/index.html.
-L'OpenAPI del servizio di devel è disponibile all'indirizzo https://dica33.ba.cnr.it/result-service/swagger-ui/index.html.
 
 ### Sicurezza
 

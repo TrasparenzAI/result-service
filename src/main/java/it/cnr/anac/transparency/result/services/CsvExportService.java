@@ -17,7 +17,7 @@
 package it.cnr.anac.transparency.result.services;
 
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.OutputStream;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -36,47 +36,37 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 public class CsvExportService {
 
-  public String resultsToCsv(List<ResultCsvDto> results) throws IOException {
-    log.debug("Deserializing to CSV {} results", results.size());
+    public void resultsToCsvStream(List<ResultCsvDto> results, OutputStream outputStream) throws IOException {
+    log.debug("Deserializing to CSV {} results (streaming)", results.size());
 
     final CsvMapper csvMapper = new CsvMapper();
     csvMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     csvMapper.registerModule(new JavaTimeModule());
 
     CsvSchema csvSchema = csvMapper.schemaFor(ResultCsvDto.class).withHeader();
-    try (StringWriter strW = new StringWriter()) {
-      SequenceWriter seqW = csvMapper.writer(csvSchema).writeValues(strW);
-      results.forEach(result -> {
-        try {
-          seqW.write(result);
-          log.trace("Writing result{}", result);
-        } catch (IOException e) {
-          log.warn("Unable to export to CSV Result {}", result, e);
-        }
-      });
-      return strW.toString();
+    try (SequenceWriter seqW = csvMapper.writer(csvSchema).writeValues(outputStream)) {
+      for (ResultCsvDto result : results) {
+        seqW.write(result);
+        log.trace("Writing result{}", result);
+      }
+      seqW.flush();
     }
   }
 
-  public String resultsToCsvTerse(List<ResultCsvTerseDto> results) throws IOException {
-    log.debug("Deserializing to CSV {} results", results.size());
+  public void resultsToCsvTerseStream(List<ResultCsvTerseDto> results, OutputStream outputStream) throws IOException {
+    log.debug("Deserializing to CSV {} results (streaming)", results.size());
 
     final CsvMapper csvMapper = new CsvMapper();
     csvMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     csvMapper.registerModule(new JavaTimeModule());
 
     CsvSchema csvSchema = csvMapper.schemaFor(ResultCsvTerseDto.class).withHeader();
-    try (StringWriter strW = new StringWriter()) {
-      SequenceWriter seqW = csvMapper.writer(csvSchema).writeValues(strW);
-      results.forEach(result -> {
-        try {
-          seqW.write(result);
-          log.trace("Writing result{}", result);
-        } catch (IOException e) {
-          log.warn("Unable to export to CSV Result {}", result, e);
-        }
-      });
-      return strW.toString();
+    try (SequenceWriter seqW = csvMapper.writer(csvSchema).writeValues(outputStream)) {
+      for (ResultCsvTerseDto result : results) {
+        seqW.write(result);
+        log.trace("Writing result{}", result);
+      }
+      seqW.flush();
     }
   }
 }
