@@ -69,6 +69,17 @@ public class ResultDao {
                         .fetchFirst());
     }
 
+    public Optional<Result> lastResultForCodiceIpa(String codiceIpa) {
+        QResult result = QResult.result;
+        JPAQuery<Result> query = new JPAQuery<Result>(entityManager);
+        return Optional.ofNullable(
+                query.from(result)
+                        .where(result.company.codiceIpa.eq(codiceIpa))
+                        .orderBy(result.id.desc()).limit(1)
+                        .select(result)
+                        .fetchFirst());
+    }
+
     public List<CategoryValueDto> countResultsAndGroupByCategoriesWidthWorkflowIdAndStatus(
             String workflowId,
             List<Integer> status

@@ -17,12 +17,15 @@
 package it.cnr.anac.transparency.result.v1.controllers;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import it.cnr.anac.transparency.result.utils.UrlResolver;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -145,14 +148,15 @@ public class ResultController {
                     description = "Restituita una pagina della lista risultati di validazione presenti.")
     })
 
-    @GetMapping(ApiRoutes.CODICE_IPA)
-    public ResponseEntity<Page<ResultShowDto>> codiceIpa(
+    @GetMapping(ApiRoutes.CODICE_IPA_WORKFLOWID)
+    public ResponseEntity<Page<ResultShowDto>> codiceIpaWorkflowId(
             @RequestParam(value = "codiceIpa") String codiceIpa,
             @RequestParam(value = "workflowId") String workflowId,
             @RequestParam("noCache") Optional<Boolean> noCache,
             @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}")
             Pageable pageable) {
         Page<ResultShowDto> results = null;
+
         if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
             results =
                     resultDao.findWithCache(Optional.empty(), Optional.empty(), Optional.empty(),
@@ -163,7 +167,32 @@ public class ResultController {
             results =
                     resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(codiceIpa),
                                     Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-                                    Optional.of(workflowId), Optional.empty(), pageable)
+                            Optional.of(workflowId), Optional.empty(), pageable)
+                            .map(mapper::convert);
+        }
+        return ResponseEntity.ok().body(results);
+    }
+
+    @GetMapping(ApiRoutes.CODICE_IPA)
+    public ResponseEntity<Page<ResultShowDto>> codiceIpa(
+            @RequestParam(value = "codiceIpa") String codiceIpa,
+            @RequestParam("noCache") Optional<Boolean> noCache,
+            @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}")
+            Pageable pageable) {
+        Page<ResultShowDto> results = null;
+        Optional<String> workflowId = resultDao.lastResultForCodiceIpa(codiceIpa).map(Result::getWorkflowId);
+
+        if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
+            results =
+                    resultDao.findWithCache(Optional.empty(), Optional.empty(), Optional.empty(),
+                                    Optional.of(codiceIpa), Optional.empty(), Optional.empty(), Optional.empty(),
+                                    Optional.empty(), workflowId, Optional.empty(), pageable)
+                            .map(mapper::convert);
+        } else {
+            results =
+                    resultDao.find(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(codiceIpa),
+                                    Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
+                                    workflowId, Optional.empty(), pageable)
                             .map(mapper::convert);
         }
         return ResponseEntity.ok().body(results);
@@ -189,13 +218,27 @@ public class ResultController {
             @RequestParam("status") Optional<Integer> status,
             @RequestParam("workflowId") String workflowId,
             @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
+            @RequestParam("realUrlValid") Optional<Boolean> realURLValid,
             @Parameter(required = false, allowEmptyValue = true) Sort sort) {
         codiceCategoria = codiceCategoria.isPresent() && codiceCategoria.get().isEmpty() ?
                 Optional.empty() : codiceCategoria;
-        val results =
-                resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
-                                denominazioneEnte, ruleName, isLeaf, status, Optional.of(workflowId), createdAfter, sort)
-                        .stream().map(mapper::convert).collect(Collectors.toList());
+        List<ResultShowDto> results = resultDao.find(idIpa, codiceCategoria, codiceFiscaleEnte, codiceIpa,
+                        denominazioneEnte, ruleName, isLeaf, status, Optional.of(workflowId), createdAfter, sort)
+                .stream().map(mapper::convert).collect(Collectors.toList());
+        if (realURLValid.isPresent() && realURLValid.get()) {
+            results = results
+                    .stream()
+                    .filter(rsd -> Optional.ofNullable(rsd.getRealUrl()).filter(s -> !s.isEmpty()).isPresent())
+                    .filter(rsd -> {
+                        try {
+                            new URL(rsd.getRealUrl());
+                            return true;
+                        } catch (MalformedURLException e) {
+                            return false;
+                        }
+                    })
+                    .toList();
+        }
         return ResponseEntity.ok().body(results);
     }
 
