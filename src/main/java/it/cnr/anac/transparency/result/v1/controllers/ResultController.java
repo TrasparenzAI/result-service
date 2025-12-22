@@ -198,6 +198,10 @@ public class ResultController {
                                     workflowId, Optional.empty(), pageable)
                             .map(mapper::convert);
         }
+        if (log.isDebugEnabled()) {
+            log.debug("Richiesti i risultati per flusso {} e codice IPA {}", workflowId, codiceIpa);
+            results.stream().map(ResultShowDto::toString).forEach(log::debug);
+        }
         return ResponseEntity.ok().body(results);
     }
 
