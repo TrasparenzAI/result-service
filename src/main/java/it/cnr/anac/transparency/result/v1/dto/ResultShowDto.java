@@ -26,7 +26,7 @@ import lombok.ToString;
  * Data transfer object per le informazioni sui risultati di validazione.
  *
  */
-@ToString
+@ToString(callSuper = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ResultShowDto extends ResultUpdateDto {

@@ -23,7 +23,7 @@ import lombok.ToString;
 /**
  * Data transfer object per le informazioni relative all'aggiornamento di un Result.
  */
-@ToString
+@ToString(callSuper = true)
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class ResultUpdateDto extends ResultCreateDto {

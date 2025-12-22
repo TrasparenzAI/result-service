@@ -173,6 +173,7 @@ public class ResultDao {
         }
         return query
                 .from(result)
+                .where(result.workflowId.isNotNull().and(result.status.isNotNull()))
                 .groupBy(result.workflowId, result.status)
                 .select(Projections.constructor(
                         ResultCount.class,

@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import it.cnr.anac.transparency.result.utils.UrlResolver;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -169,6 +168,10 @@ public class ResultController {
                                     Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
                             Optional.of(workflowId), Optional.empty(), pageable)
                             .map(mapper::convert);
+        }
+        if (log.isDebugEnabled()) {
+            log.debug("Richiesti i risultati per flusso {} e codice IPA {}", workflowId, codiceIpa);
+            results.stream().map(ResultShowDto::toString).forEach(log::debug);
         }
         return ResponseEntity.ok().body(results);
     }
