@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -20,6 +20,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+
 import java.time.LocalDateTime;
 
 import lombok.Getter;
@@ -33,8 +34,6 @@ import lombok.Setter;
 @Setter
 @MappedSuperclass
 public abstract class MutableModel extends BaseEntity {
-
-  private static final long serialVersionUID = 4890911962768274977L;
 
   @Column(name = "created_at")
   private LocalDateTime createdAt;

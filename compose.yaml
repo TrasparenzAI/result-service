@@ -1,9 +1,24 @@
 services:
   postgres:
-    image: 'postgres:latest'
+    image: 'postgres:16'
     environment:
       - 'POSTGRES_DB=transparency-results'
       - 'POSTGRES_PASSWORD=secret'
       - 'POSTGRES_USER=cnr-anac'
     ports:
       - '5432'
+#    volumes:
+#      - ./result-service-20240722-0600.sql:/tmp/dump.sql
+#      - ./postgres-data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./minio-data:/data
