@@ -41,4 +41,6 @@ public class ConductorWorkflowDto {
     Long endTime;
     //5e230eee-d1e8-4690-88c2-0b3583e7a3d1
     String workflowId;
+    //cnr
+    String codiceIpa;
 }

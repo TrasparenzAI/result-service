@@ -35,7 +35,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class DtoToEntityConverter {
+public class ResultDtoToEntityConverter {
 
   private final ResultMapper mapper;
   private final ResultRepository repo;
@@ -50,16 +50,17 @@ public class DtoToEntityConverter {
   }
 
   /**
-   * Coverte il dto in una lista di Result
-   * @param resultBulkCreateDto
-   * @return
+   * Converte il dto in una lista di Result.
+   *
+   * @param resultBulkCreateDto Dto con i dati dei risultati da convertire.
+   * @return Lista di Result corrispondenti ai dati del DTO.
    */
   public List<Result> createBulkEntity(ResultBulkCreateDto resultBulkCreateDto) {
     return mapper.toResults(resultBulkCreateDto);
   }
 
   /**
-   * Aggiorna l'entity riferita dal DTO con i dati passati.
+   * Aggiorna la entity riferita dal DTO con i dati passati.
    */
   public Result updateEntity(ResultUpdateDto resultDto) {
     Verify.verifyNotNull(resultDto);

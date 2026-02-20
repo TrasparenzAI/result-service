@@ -8,7 +8,7 @@ services:
     ports:
       - '5432'
 #    volumes:
-#      - ./result-service-20240722-0600.sql:/tmp/dump.sql
+#      - ./result-service-20260219-0600.sql:/docker-entrypoint-initdb.d/result-service-20260219-0600.sql
 #      - ./postgres-data:/var/lib/postgresql/data
 
   minio:

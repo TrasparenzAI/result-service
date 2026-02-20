@@ -14,27 +14,20 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package it.cnr.anac.transparency.result.v1.dto;
+package it.cnr.anac.transparency.result.repositories;
 
 import it.cnr.anac.transparency.result.models.Workflow;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-/**
- * Mapping dei dati della Entity dei Workflow ai DTO per la creazione, modifica e visualizzazione,
- * oltre all'esportazione nel formato del Conductor.
- */
-@Mapper(componentModel = "spring")
-public interface WorkflowMapper {
+import java.util.List;
 
-    WorkflowShowDto convert(Workflow workflow);
+public interface WorkflowRepository extends JpaRepository<Workflow,Long>, QuerydslPredicateExecutor<Workflow> {
 
-    ConductorWorkflowDto convertToConductor(Workflow workflow);
+  List<Workflow> findByCodiceIpa(String codiceIpa);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    void update(@MappingTarget Workflow workflow, WorkflowCreateDto companyDto);
+  @Transactional
+  long deleteByWorkflowId(String workflowId);
+
 }

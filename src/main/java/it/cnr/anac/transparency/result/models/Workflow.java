@@ -52,7 +52,8 @@ public class Workflow extends MutableModel {
   private String workflowId;
 
   private String codiceIpa;
-  // 200
+
+  @Enumerated(EnumType.STRING)
   private WorkflowStatus status;
 
   private Long createTime;
@@ -76,8 +77,4 @@ public class Workflow extends MutableModel {
     return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
   }
 
-    public static void main(String[] args) {
-        LocalDateTime now = LocalDateTime.now();
-        System.out.println(now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
-    }
 }
