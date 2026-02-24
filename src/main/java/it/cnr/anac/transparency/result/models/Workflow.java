@@ -52,6 +52,7 @@ public class Workflow extends MutableModel {
   private String workflowId;
 
   private String codiceIpa;
+  private String rootRule;
 
   @Enumerated(EnumType.STRING)
   private WorkflowStatus status;

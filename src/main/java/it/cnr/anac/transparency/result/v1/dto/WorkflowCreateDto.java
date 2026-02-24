@@ -29,7 +29,9 @@ public class WorkflowCreateDto {
 
     private String workflowId;
     private String codiceIpa;
+    private String rootRule;
     private Workflow.WorkflowStatus status;
+    private Long createTime;
     private Long startTime;
     private Long endTime;
 

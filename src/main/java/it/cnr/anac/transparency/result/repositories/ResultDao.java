@@ -71,10 +71,12 @@ public class ResultDao {
 
     public Optional<Result> lastResultForCodiceIpa(String codiceIpa) {
         QResult result = QResult.result;
+        QWorkflow workflow = QWorkflow.workflow;
         JPAQuery<Result> query = new JPAQuery<Result>(entityManager);
         return Optional.ofNullable(
                 query.from(result)
-                        .where(result.company.codiceIpa.eq(codiceIpa))
+                        .join(workflow).on(result.workflowId.eq(workflow.workflowId))
+                        .where(result.company.codiceIpa.eq(codiceIpa).and(workflow.status.eq(Workflow.WorkflowStatus.COMPLETED)))
                         .orderBy(result.id.desc()).limit(1)
                         .select(result)
                         .fetchFirst());

@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import it.cnr.anac.transparency.result.repositories.WorkflowRepository;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -81,6 +82,7 @@ public class ResultController {
     private final CsvExportService csvExportService;
     private final CachingService cachingService;
     private final MinioService minioService;
+    private final WorkflowRepository workflowRepository;
 
     @Operation(
             summary = "Visualizzazione delle informazioni di un risultato di validazione.")
@@ -328,6 +330,9 @@ public class ResultController {
     ResponseEntity<Long> deleteByWorkflowId(
             @NotNull @PathVariable("id") String id) {
         log.debug("ResultController::deleteByWorkflowId workflowId = {}", id);
+        val deletedWorkflow = workflowRepository.deleteByWorkflowId(id);
+        log.info("Eliminato definitivamente {} il workflowId {}", deletedWorkflow, id);
+
         val deleted = resultRepository.deleteByWorkflowId(id);
         log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
 

@@ -41,6 +41,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -111,7 +112,9 @@ public class WorkflowController {
     ) {
         //Se non viene passato nessun codice ipa allora si restituiscono tutti i workflow con codiceIpa null.
         List<Workflow> all = workflowRepository.findByCodiceIpa(codiceIpa.orElse(null));
-        val workflows = all.stream().map(mapper::convertToConductor).collect(Collectors.toList());
+        val workflows = all.stream()
+                .sorted(Comparator.comparing(Workflow::getCreateTime).reversed())
+                .map(mapper::convertToConductor).collect(Collectors.toList());
         return ResponseEntity.ok().body(workflows);
     }
 

@@ -34,7 +34,7 @@ import java.util.Optional;
 @Component
 public class WorkflowDao {
 
-    WorkflowRepository repo;
+    private final WorkflowRepository repo;
 
     private BooleanBuilder findConditions(QWorkflow workflow, Optional<String> workflowId,
                                           Optional<String> codiceIpa,

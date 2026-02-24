@@ -43,4 +43,7 @@ public class ConductorWorkflowDto {
     String workflowId;
     //cnr
     String codiceIpa;
+
+    String rootRule;
+
 }

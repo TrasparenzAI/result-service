@@ -37,4 +37,9 @@ public interface WorkflowMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
     void update(@MappingTarget Workflow workflow, WorkflowCreateDto companyDto);
+
+    default String emptyToNull(String value) {
+        return (value != null && value.isBlank()) ? null : value;
+    }
+
 }
