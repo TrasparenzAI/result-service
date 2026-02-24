@@ -14,32 +14,20 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package it.cnr.anac.transparency.result.repositories;
 
-package it.cnr.anac.transparency.result.models;
+import it.cnr.anac.transparency.result.models.Workflow;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-import java.io.Serializable;
+import java.util.List;
 
-import jakarta.persistence.Embeddable;
-import lombok.Data;
-import lombok.ToString;
+public interface WorkflowRepository extends JpaRepository<Workflow,Long>, QuerydslPredicateExecutor<Workflow> {
 
-/**
- * Entity che rappresenta i dati di un Ente pubblico.
- */
-@ToString
-@Data
-@Embeddable
-public class Company implements Serializable {
+  List<Workflow> findByCodiceIpa(String codiceIpa);
 
-  private Long idIpa;
-  private String codiceIpa;
-  private String denominazioneEnte;
-  private String codiceFiscaleEnte;
-  private String tipologia;
-  private String codiceCategoria;
-  private String codiceNatura;
-  private String acronimo;
-  private String sitoIstituzionale;
-  private String sorgente;
-  
+  @Transactional
+  long deleteByWorkflowId(String workflowId);
+
 }

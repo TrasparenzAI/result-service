@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -16,6 +16,7 @@
  */
 package it.cnr.anac.transparency.result.models;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import jakarta.persistence.Embeddable;
@@ -31,6 +32,7 @@ import lombok.ToString;
 @Embeddable
 public class StorageData implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 4740036434463012854L;
 
   private String objectBucket;

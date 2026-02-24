@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 Consiglio Nazionale delle Ricerche
+ * Copyright (C) 2026 Consiglio Nazionale delle Ricerche
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU Affero General Public License as
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import it.cnr.anac.transparency.result.repositories.WorkflowRepository;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -77,10 +78,11 @@ public class ResultController {
     private final ResultRepository resultRepository;
     private final ResultDao resultDao;
     private final ResultMapper mapper;
-    private final DtoToEntityConverter dtoToEntityConverter;
+    private final ResultDtoToEntityConverter dtoToEntityConverter;
     private final CsvExportService csvExportService;
     private final CachingService cachingService;
     private final MinioService minioService;
+    private final WorkflowRepository workflowRepository;
 
     @Operation(
             summary = "Visualizzazione delle informazioni di un risultato di validazione.")
@@ -93,9 +95,9 @@ public class ResultController {
     })
     @GetMapping(ApiRoutes.SHOW)
     public ResponseEntity<ResultShowDto> show(@NotNull @PathVariable("id") Long id) {
-        val company = resultRepository.findById(id)
+        val result = resultRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Result non trovato con id = " + id));
-        return ResponseEntity.ok().body(mapper.convert(company));
+        return ResponseEntity.ok().body(mapper.convert(result));
     }
 
     @Operation(
@@ -276,7 +278,7 @@ public class ResultController {
     })
     @PutMapping(ApiRoutes.CREATE_BULK)
     public ResponseEntity<List<ResultShowDto>> createBulk(@NotNull @Valid @RequestBody ResultBulkCreateDto resultDto) {
-        log.debug("CompanyController::create companyDto = {}", resultDto);
+        log.debug("ResultController::create resultDto = {}", resultDto);
         val result = dtoToEntityConverter.createBulkEntity(resultDto);
         resultRepository.saveAll(result);
         log.info("Creato Result {}", result);
@@ -328,6 +330,9 @@ public class ResultController {
     ResponseEntity<Long> deleteByWorkflowId(
             @NotNull @PathVariable("id") String id) {
         log.debug("ResultController::deleteByWorkflowId workflowId = {}", id);
+        val deletedWorkflow = workflowRepository.deleteByWorkflowId(id);
+        log.info("Eliminato definitivamente {} il workflowId {}", deletedWorkflow, id);
+
         val deleted = resultRepository.deleteByWorkflowId(id);
         log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
 

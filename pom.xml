@@ -5,22 +5,22 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.3.11</version>
+		<version>3.4.13</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>it.cnr.anac.transparency</groupId>
 	<artifactId>transparency-result-service</artifactId>
-	<version>0.2.2</version>
+	<version>0.3.0</version>
 	<name>Transparency Result Service</name>
 	<description>Servizio Risultati trasparenza siti PA</description>
 	<properties>
 		<java.version>17</java.version>
-		<com.google.guava.version>33.0.0-jre</com.google.guava.version>
-		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
-		<jib.maven-plugin.version>3.4.0</jib.maven-plugin.version>
-		<springdoc-openapi.version>2.3.0</springdoc-openapi.version>
-		<querydsl.version>5.0.0</querydsl.version>
-        <spring-cloud.version>2023.0.1</spring-cloud.version>
+		<com.google.guava.version>33.5.0-jre</com.google.guava.version>
+		<org.mapstruct.version>1.6.3</org.mapstruct.version>
+		<jib.maven-plugin.version>3.5.1</jib.maven-plugin.version>
+		<springdoc-openapi.version>2.8.15</springdoc-openapi.version>
+		<querydsl.version>5.1.0</querydsl.version>
+        <spring-cloud.version>2024.0.3</spring-cloud.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -153,18 +153,47 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<!-- Testcontainers -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- (opzionale ma consigliato con Spring Boot 3.1+) -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-testcontainers</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<!-- BOM Testcontainers per versioni coerenti -->
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers-bom</artifactId>
+				<version>1.20.4</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<build>
 		<plugins>

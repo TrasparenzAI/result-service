@@ -20,62 +20,47 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.proxy.HibernateProxy;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Objects;
 
 /**
- * Entity che rappresenta il risultato di un controllo dei dati della trasparenza su una pagina
- * di un sito pubblico.
+ * Entity che rappresenta un workflow di analisi dei dati della trasparenza.
+ * Il Workflow può essere relativo a un PA (se codiceIpa è diverso da null), oppure
+ * relativo a tutte le PA presenti.
  */
 @ToString
 @Getter
 @Setter
 @NoArgsConstructor
 @Table(
-    name = "results", 
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "workflowId", "idIpa", "ruleName" }) })
+    name = "workflows",
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "workflowId" }) })
 @Entity
-public class Result extends MutableModel {
+public class Workflow extends MutableModel {
 
-  public Result(Company company) {
-    this.company = company;
+  public enum WorkflowStatus {
+      RUNNING,
+      COMPLETED,
+      FAILED,
+      TIMED_OUT,
+      TERMINATED,
+      PAUSED
   }
-
-  @Embedded
-  private Company company;
-
-  private String realUrl;
-
-  @Embedded
-  private StorageData storageData;
-
-  // "/it/amministrazione-trasparente?searchterm=amministrazione+trasparente"
-  private String url;
-  // "amministrazione-trasparente"
-  private String ruleName;
-  // "Amministrazione Trasparente"
-  private String term;
-  // "Amministrazione trasparente"
-  private String content; 
-  // false
-  private boolean isLeaf;
-  // 200
-  private Integer status;
-  // 5.466414
-  private BigDecimal score;
 
   // "6d7e4bd7-a890-439d-9dc7-f9f3f515d8b5"
   private String workflowId;
-  // Id del flusso di dettaglio che ha elaborato la richiesta, valore di tipo stringa
-  private String workflowChildId;
 
-  //  Messaggio di errore restituito dal crawler di tipo stringa
-  private String errorMessage;
-  // Lunghezza in byte della pagina
-  private Integer length;
-  @Column(name = "location")
-  // Valore restituito dal motore delle regole, indica dove è stata trovata l'occorrenza del termine, di tipo stringa
-  private String where;
+  private String codiceIpa;
+  private String rootRule;
+
+  @Enumerated(EnumType.STRING)
+  private WorkflowStatus status;
+
+  private Long createTime;
+  private Long updateTime;
+  private Long startTime;
+  private Long endTime;
 
   @Override
   public final boolean equals(Object o) {
@@ -84,7 +69,7 @@ public class Result extends MutableModel {
     Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
     Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
     if (thisEffectiveClass != oEffectiveClass) return false;
-    Result result = (Result) o;
+    Workflow result = (Workflow) o;
     return getId() != null && Objects.equals(getId(), result.getId());
   }
 
@@ -92,4 +77,5 @@ public class Result extends MutableModel {
   public final int hashCode() {
     return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
   }
+
 }

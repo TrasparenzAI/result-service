@@ -14,32 +14,24 @@
  *     You should have received a copy of the GNU Affero General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package it.cnr.anac.transparency.result.v1.dto;
 
-package it.cnr.anac.transparency.result.models;
-
-import java.io.Serializable;
-
-import jakarta.persistence.Embeddable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-/**
- * Entity che rappresenta i dati di un Ente pubblico.
- */
-@ToString
-@Data
-@Embeddable
-public class Company implements Serializable {
+import java.time.LocalDateTime;
 
-  private Long idIpa;
-  private String codiceIpa;
-  private String denominazioneEnte;
-  private String codiceFiscaleEnte;
-  private String tipologia;
-  private String codiceCategoria;
-  private String codiceNatura;
-  private String acronimo;
-  private String sitoIstituzionale;
-  private String sorgente;
+/**
+ * Data transfer object per le informazioni sui workflow.
+ *
+ */
+@ToString(callSuper = true)
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class WorkflowShowDto extends WorkflowUpdateDto {
+
+  private LocalDateTime createdAt;
+  private LocalDateTime updatedAt;
   
 }
