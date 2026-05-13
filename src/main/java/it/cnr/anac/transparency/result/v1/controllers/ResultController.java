@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import it.cnr.anac.transparency.result.models.Workflow;
 import it.cnr.anac.transparency.result.repositories.WorkflowRepository;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
@@ -205,6 +206,24 @@ public class ResultController {
             results.stream().map(ResultShowDto::toString).forEach(log::debug);
         }
         return ResponseEntity.ok().body(results);
+    }
+
+    @Operation(
+            summary = "Conteggio dei risultati di validazione presenti nel sistema per Codice IPA.",
+            description = "Sono restitutite le informazione dell'ultimo flusso eseguito insieme al totale rispetto ai codici di stato richiesti.")
+    @GetMapping(ApiRoutes.CODICE_IPA_COUNT)
+    public ResponseEntity<BadgeResponse> codiceIpaCount(
+            @RequestParam(value = "codiceIpa") String codiceIpa,
+            @RequestParam(value = "status", required = false) List<Integer> status) {
+        String workflowId = resultDao.lastResultForCodiceIpa(codiceIpa).map(Result::getWorkflowId)
+                .orElseThrow(() -> new EntityNotFoundException("Nessun workflow trovato per codiceIpa = " + codiceIpa));
+        Long count = resultDao.count(codiceIpa, workflowId, status);
+        Workflow workflow = workflowRepository.findByWorkflowId(workflowId);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Richiesti i risultati totali per flusso {} e codice IPA {} e stato {}", workflowId, codiceIpa, status);
+        }
+        return ResponseEntity.ok().body(BadgeResponse.of(workflowId, workflow.getRootRule(), count));
     }
 
     @Operation(
@@ -528,6 +547,10 @@ public class ResultController {
         return ResponseEntity.ok().body(
                 resultDao.countResultsAndGroupByCategoriesWidthWorkflowIdAndStatus(workflowId, status)
         );
+    }
+
+    public record BadgeResponse(String workflowId, String rule, Long total) {
+        public static BadgeResponse of(String workflowId, String rule, Long total){return new BadgeResponse(workflowId, rule, total); }
     }
 
 }

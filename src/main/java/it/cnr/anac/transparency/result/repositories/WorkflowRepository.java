@@ -30,4 +30,7 @@ public interface WorkflowRepository extends JpaRepository<Workflow,Long>, Queryd
   @Transactional
   long deleteByWorkflowId(String workflowId);
 
+  @Transactional
+  Workflow findByWorkflowId(String workflowId);
+
 }

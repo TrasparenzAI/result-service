@@ -258,6 +258,22 @@ public class ResultDao {
         return repo.findAll(conditions.getValue(), pageable);
     }
 
+    public Long count(
+            String codiceIpa,
+            String workflowId,
+            List<Integer> status) {
+        QResult result = QResult.result;
+        BooleanBuilder builder = new BooleanBuilder(result.id.isNotNull());
+        builder.and(result.company.codiceIpa.equalsIgnoreCase(codiceIpa));
+        builder.and(result.workflowId.eq(workflowId));
+        Optional.ofNullable(status)
+                .filter(integers -> !integers.isEmpty())
+                .ifPresent(integers -> {
+                    builder.and(result.status.in(integers));
+                });
+        return repo.count(builder);
+    }
+
     public List<Result> find(Optional<Long> idIpa,
                              Optional<String> codiceCategoria, Optional<String> codiceFiscaleEnte,
                              Optional<String> codiceIpa, Optional<String> denominazioneEnte,
