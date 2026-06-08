@@ -22,7 +22,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import it.cnr.anac.transparency.result.config.RuleCategoryProperties;
 import it.cnr.anac.transparency.result.models.*;
 import it.cnr.anac.transparency.result.v1.dto.CategoryValueDto;
-import it.cnr.anac.transparency.result.v1.dto.RuleDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
