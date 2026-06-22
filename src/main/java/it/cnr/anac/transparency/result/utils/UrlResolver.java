@@ -21,7 +21,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.utils.URIBuilder;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
 
@@ -37,21 +36,21 @@ public class UrlResolver {
     target = sanitize(normalizedTarget(target));
     try {
       //Se il target è già un URL assoluta viene restituita quella
-      URIBuilder uriBuilderTarget = new URIBuilder(target);
-      if (uriBuilderTarget.isAbsolute()) {
-        return Optional.of(uriBuilderTarget.build().normalize().toString());
+      URI uriTarget = new URI(target);
+      if (uriTarget.isAbsolute()) {
+        return Optional.of(uriTarget.normalize().toString());
       }
       if (Strings.isNullOrEmpty(target)) {
         log.warn("Target url is null or empty, unable to calculate destination (base = {})", base);
         return Optional.empty();
       }
       //Se il target non è assoluto si prova a fare la join con la baseUrl
-      URIBuilder uriBuilderBase = new URIBuilder(base);
-      if (!uriBuilderBase.isAbsolute()) {
+      URI uriBase = new URI(base);
+      if (!uriBase.isAbsolute()) {
         log.warn("Base url {} is not absolute, enable to join with {}", base, target);
         return Optional.empty();
       }
-      URI baseUri = uriBuilderBase.build().normalize();
+      URI baseUri = uriBase.normalize();
       //Se il traget inizia con ? allora viene restituita semplicemente la concatenazione
       if (!Strings.isNullOrEmpty(baseUri.getPath()) && target.startsWith("?")) {
         return Optional.of(baseUri.toString().concat(target));

@@ -18,7 +18,6 @@ package it.cnr.anac.transparency.result;
 
 import it.cnr.anac.transparency.result.utils.UrlResolver;
 import java.util.Optional;
-import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -98,14 +97,14 @@ public class UrlJoinerTest {
   @Test
   public void encodeUrl() {
     var target = "https://web.spaggiari.eu/?referer=http:\\\\www.itclenoci.it";
-    val sanitizedTarget = UrlResolver.sanitize(target);
+    var sanitizedTarget = UrlResolver.sanitize(target);
     Assertions.assertEquals("https://web.spaggiari.eu/?referer=http:%5C%5Cwww.itclenoci.it", sanitizedTarget);
   }
 
   @Test
   public void encodeUrl2() {
     var target = "https&#x3a;&#x2f;&#x2f;www&#x2e;regione&#x2e;veneto&#x2e;it&#x2f;organizzazione";
-    val sanitizedTarget = UrlResolver.sanitize(target);
+    var sanitizedTarget = UrlResolver.sanitize(target);
     Assertions.assertEquals("https://www.regione.veneto.it/organizzazione", sanitizedTarget);
   }
 
