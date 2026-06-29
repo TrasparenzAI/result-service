@@ -89,12 +89,13 @@ public class WorkflowController {
     public ResponseEntity<Page<WorkflowShowDto>> list(
             @RequestParam("workflowId") Optional<String> workflowId,
             @RequestParam("codiceIpa") Optional<String> codiceIpa,
+            @RequestParam("withoutCodiceIpa") Optional<Boolean> withoutCodiceIpa,
             @RequestParam("status") Optional<Workflow.WorkflowStatus> status,
             @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
             @Parameter(allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}")
             Pageable pageable) {
         Page<WorkflowShowDto> workflows =
-                    workflowDao.find(workflowId, codiceIpa, status, createdAfter, pageable)
+                    workflowDao.find(workflowId, codiceIpa, withoutCodiceIpa, status, createdAfter, pageable)
                             .map(mapper::convert);
         return ResponseEntity.ok().body(workflows);
     }
