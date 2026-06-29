@@ -38,11 +38,16 @@ public class WorkflowDao {
 
     private BooleanBuilder findConditions(QWorkflow workflow, Optional<String> workflowId,
                                           Optional<String> codiceIpa,
+                                          Optional<Boolean> withoutCodiceIpa,
                                           Optional<Workflow.WorkflowStatus> status,
                                           Optional<LocalDate> createdAfter) {
         BooleanBuilder builder = new BooleanBuilder(workflow.id.isNotNull());
         workflowId.ifPresent(s -> builder.and(workflow.workflowId.eq(s)));
         codiceIpa.ifPresent(s -> builder.and(workflow.codiceIpa.equalsIgnoreCase(s)));
+        withoutCodiceIpa.ifPresent(b -> {
+            if (b.equals(Boolean.TRUE)) { builder.and(workflow.codiceIpa.isNull()); }
+            else { builder.and(workflow.codiceIpa.isNotNull()); } ;
+        });
         status.ifPresent(workflowStatus -> builder.and(workflow.status.eq(workflowStatus)));
         createdAfter.ifPresent(localDate -> builder.and(workflow.createdAt.after(localDate.atStartOfDay())));
 
@@ -52,13 +57,14 @@ public class WorkflowDao {
     public Page<Workflow> find(
             Optional<String> workflowId,
             Optional<String> codiceIpa,
+            Optional<Boolean> withoutCodiceIpa,
             Optional<Workflow.WorkflowStatus> status,
             Optional<LocalDate> createdAfter,
             Pageable pageable) {
         QWorkflow workflow = QWorkflow.workflow;
         BooleanBuilder conditions =
                 findConditions(workflow,
-                        workflowId, codiceIpa, status, createdAfter);
+                        workflowId, codiceIpa, withoutCodiceIpa, status, createdAfter);
         assert conditions.getValue() != null;
         return repo.findAll(conditions.getValue(), pageable);
     }

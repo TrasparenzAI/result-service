@@ -89,7 +89,7 @@ class WorkflowControllerTest extends PostgresTestContainerBase {
 
     @Test
     void list_ok() throws Exception {
-        when(workflowDao.find(any(), any(), any(), any(), any()))
+        when(workflowDao.find(any(), any(), any(), any(), any(), any()))
                 .thenReturn(new PageImpl<>(List.of(new Workflow()), PageRequest.of(0, 20), 1));
         when(mapper.convert(any(Workflow.class))).thenReturn(null);
 
@@ -99,6 +99,7 @@ class WorkflowControllerTest extends PostgresTestContainerBase {
                 .andExpect(status().isOk());
 
         verify(workflowDao).find(
+                any(Optional.class),
                 any(Optional.class),
                 any(Optional.class),
                 any(Optional.class),
