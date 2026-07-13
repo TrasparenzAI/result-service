@@ -352,13 +352,18 @@ public class ResultController {
         val deletedWorkflow = workflowRepository.deleteByWorkflowId(id);
         log.info("Eliminato definitivamente {} il workflowId {}", deletedWorkflow, id);
 
+        //Prelevo i riferimenti agli oggetti (sorgente e screenshot) salvati nel Minio
+        //prima di effettuare la cancellazione del workflow dai risultati, altrimenti dopo
+        //non sono più presenti nel database
+        val storageDateByWorkflowId = resultDao.storageDataByWorkflowId(id);
+
         val deleted = resultRepository.deleteByWorkflowId(id);
         log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
 
         cachingService.evictResultsCachesAtIntervals();
 
         //Avvio la rimozione asincrona degli eventuali oggetti (sorgente e screenshot) salvati nel Minio
-        minioService.removeObjects(resultDao.storageDataByWorkflowId(id));
+        minioService.removeObjects(storageDateByWorkflowId);
 
         return ResponseEntity.ok(deleted);
     }
