@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>it.cnr.anac.transparency</groupId>
 	<artifactId>transparency-result-service</artifactId>
-	<version>0.3.5</version>
+	<version>0.3.6</version>
 	<name>Transparency Result Service</name>
 	<description>Servizio Risultati trasparenza siti PA</description>
 	<properties>
@@ -47,6 +47,10 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-flyway</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>

@@ -19,6 +19,9 @@ Result Service fornisce alcuni servizi REST utilizzabili in produzione per:
  - visualizzare i dati di una verifica su un sito web
  - mostrare la lista delle verifiche effettuate
  - esportare in CSV i risultati delle validazioni presenti
+ - inserire, aggiornare, cancellare e consultare le informazioni sulle ATMap (la mappa dei link
+   della sezione "Amministrazione Trasparente" pubblicata dagli enti secondo gli schemi ANAC)
+   individuate nel corso delle scansioni, compreso il contenuto del file prelevato
 
 Il Result Service si occupa anche di cancellare dal Minio i sorgenti HTML e gli Screenshot associati
 ai risultati di validazione ogni qual volta i risultati di validazione vengono cancellati.
