@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import it.cnr.anac.transparency.result.models.Workflow;
+import it.cnr.anac.transparency.result.repositories.AtMapRepository;
 import it.cnr.anac.transparency.result.repositories.WorkflowRepository;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
@@ -84,6 +85,7 @@ public class ResultController {
     private final CachingService cachingService;
     private final MinioService minioService;
     private final WorkflowRepository workflowRepository;
+    private final AtMapRepository atMapRepository;
 
     @Operation(
             summary = "Visualizzazione delle informazioni di un risultato di validazione.")
@@ -359,6 +361,9 @@ public class ResultController {
 
         val deleted = resultRepository.deleteByWorkflowId(id);
         log.info("Eliminati definitivamente {} risultati del workflowId {}", deleted, id);
+
+        val deletedAtMaps = atMapRepository.deleteByWorkflowId(id);
+        log.info("Eliminate definitivamente {} ATMap del workflowId {}", deletedAtMaps, id);
 
         cachingService.evictResultsCachesAtIntervals();
 
