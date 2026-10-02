@@ -24,7 +24,9 @@ import lombok.ToString;
 @Data
 public class AtMapCreateDto {
 
-  private CompanyShowDto company;
+  private Long idIpa;
+
+  private String codiceIpa;
 
   // "6d7e4bd7-a890-439d-9dc7-f9f3f515d8b5"
   private String workflowId;

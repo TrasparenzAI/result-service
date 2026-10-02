@@ -32,7 +32,9 @@ public class AtMapShowDto {
 
   private Long id;
 
-  private CompanyShowDto company;
+  private Long idIpa;
+
+  private String codiceIpa;
 
   private String workflowId;
 

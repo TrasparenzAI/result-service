@@ -28,7 +28,7 @@ public interface AtMapRepository extends JpaRepository<AtMap,Long>, QuerydslPred
 
   List<AtMap> findByWorkflowId(String workflowId);
 
-  Optional<AtMap> findByWorkflowIdAndCompanyCodiceIpa(String workflowId, String codiceIpa);
+  Optional<AtMap> findByWorkflowIdAndCodiceIpa(String workflowId, String codiceIpa);
 
   @Transactional
   long deleteByWorkflowId(String workflowId);

@@ -47,7 +47,7 @@ public class AtMapDao {
                                           Optional<LocalDate> createdAfter) {
         BooleanBuilder builder = new BooleanBuilder(atMap.id.isNotNull());
         workflowId.ifPresent(s -> builder.and(atMap.workflowId.eq(s)));
-        codiceIpa.ifPresent(s -> builder.and(atMap.company.codiceIpa.equalsIgnoreCase(s)));
+        codiceIpa.ifPresent(s -> builder.and(atMap.codiceIpa.equalsIgnoreCase(s)));
         found.ifPresent(b -> builder.and(atMap.found.eq(b)));
         createdAfter.ifPresent(localDate -> builder.and(atMap.createdAt.after(localDate.atStartOfDay())));
 
@@ -78,7 +78,7 @@ public class AtMapDao {
         return Optional.ofNullable(
                 query.from(atMap)
                         .join(workflow).on(atMap.workflowId.eq(workflow.workflowId))
-                        .where(atMap.company.codiceIpa.equalsIgnoreCase(codiceIpa)
+                        .where(atMap.codiceIpa.equalsIgnoreCase(codiceIpa)
                                 .and(workflow.status.eq(Workflow.WorkflowStatus.COMPLETED)))
                         .orderBy(atMap.id.desc()).limit(1)
                         .select(atMap)

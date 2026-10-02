@@ -177,7 +177,7 @@ class AtMapControllerTest extends PostgresTestContainerBase {
         String jsonBody = """
                 {
                   "workflowId": "wf-1",
-                  "company": { "codiceIpa": "IPA001" },
+                  "codiceIpa": "IPA001",
                   "url": "https://www.example.org/at_map.xml",
                   "found": true,
                   "status": 200,
@@ -230,7 +230,7 @@ class AtMapControllerTest extends PostgresTestContainerBase {
                 {
                   "id": 1,
                   "workflowId": "wf-1",
-                  "company": { "codiceIpa": "IPA001" },
+                  "codiceIpa": "IPA001",
                   "found": false
                 }
                 """;

@@ -3,14 +3,6 @@ CREATE TABLE IF NOT EXISTS at_maps (
 
     id_ipa BIGINT,
     codice_ipa TEXT,
-    denominazione_ente TEXT,
-    codice_fiscale_ente TEXT,
-    tipologia TEXT,
-    codice_categoria TEXT,
-    codice_natura TEXT,
-    acronimo TEXT,
-    sito_istituzionale TEXT,
-    sorgente TEXT,
 
     workflow_id TEXT,
     url TEXT,

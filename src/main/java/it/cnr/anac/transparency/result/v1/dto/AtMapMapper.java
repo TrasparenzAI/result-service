@@ -17,17 +17,12 @@
 package it.cnr.anac.transparency.result.v1.dto;
 
 import it.cnr.anac.transparency.result.models.AtMap;
-import it.cnr.anac.transparency.result.models.Company;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface AtMapMapper {
-
-    CompanyShowDto convert(Company company);
-
-    Company convert(CompanyShowDto companyShowDto);
 
     AtMapShowDto convert(AtMap atMap);
 
