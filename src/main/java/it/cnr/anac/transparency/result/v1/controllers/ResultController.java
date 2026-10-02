@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import it.cnr.anac.transparency.result.models.Workflow;
 import it.cnr.anac.transparency.result.repositories.WorkflowRepository;
+import it.cnr.anac.transparency.result.security.RpctAuthorizationService;
 import it.cnr.anac.transparency.result.v1.dto.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -65,6 +66,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 @SecurityRequirement(name = "bearer_authentication")
 @Tag(
@@ -84,6 +87,7 @@ public class ResultController {
     private final CachingService cachingService;
     private final MinioService minioService;
     private final WorkflowRepository workflowRepository;
+    private final RpctAuthorizationService rpctAuthorizationService;
 
     @Operation(
             summary = "Visualizzazione delle informazioni di un risultato di validazione.")
@@ -152,11 +156,13 @@ public class ResultController {
 
     @GetMapping(ApiRoutes.CODICE_IPA_WORKFLOWID)
     public ResponseEntity<Page<ResultShowDto>> codiceIpaWorkflowId(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(value = "codiceIpa") String codiceIpa,
             @RequestParam(value = "workflowId") String workflowId,
             @RequestParam("noCache") Optional<Boolean> noCache,
             @Parameter(required = false, allowEmptyValue = true, example = "{ \"page\": 0, \"size\":100, \"sort\":\"id\"}")
             Pageable pageable) {
+        rpctAuthorizationService.checkCodiceIpa(jwt, codiceIpa);
         Page<ResultShowDto> results = null;
 
         if (noCache.isEmpty() || noCache.get().equals(Boolean.FALSE)) {
