@@ -206,6 +206,10 @@
                         <goals>
                             <goal>build-info</goal>
                         </goals>
+                        <configuration>
+                            <!-- Data di build reale, non quella "riproducibile" -->
+                            <time>${maven.build.timestamp}</time>
+                        </configuration>
                     </execution>
                 </executions>
 				<configuration>

@@ -35,18 +35,19 @@ jobs:
           echo "snapshot=${MAJOR}.${MINOR}.${NEXT_PATCH}-SNAPSHOT" >> "$GITHUB_OUTPUT"
 
       - name: Set release version
-        run: mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.release }} -DgenerateBackupPoms=false
+        run: ./mvnw --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.release }} -DgenerateBackupPoms=false
 
       - name: Commit release version
         run: |
+          echo "${{ steps.version.outputs.release }}" > VERSION
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add pom.xml
+          git add pom.xml VERSION
           git commit -m "Release ${{ steps.version.outputs.release }} [skip ci]"
           git push
 
       - name: Set next SNAPSHOT version
-        run: mvn --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.snapshot }} -DgenerateBackupPoms=false
+        run: ./mvnw --batch-mode versions:set -DnewVersion=${{ steps.version.outputs.snapshot }} -DgenerateBackupPoms=false
 
       - name: Commit SNAPSHOT version
         run: |
