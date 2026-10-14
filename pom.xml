@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>it.cnr.anac.transparency</groupId>
 	<artifactId>transparency-result-service</artifactId>
-	<version>0.4.1-SNAPSHOT</version>
+	<version>0.4.1</version>
 	<name>Transparency Result Service</name>
 	<description>Servizio Risultati trasparenza siti PA</description>
 	<properties>
@@ -206,6 +206,10 @@
                         <goals>
                             <goal>build-info</goal>
                         </goals>
+                        <configuration>
+                            <!-- Data di build reale, non quella "riproducibile" -->
+                            <time>${maven.build.timestamp}</time>
+                        </configuration>
                     </execution>
                 </executions>
 				<configuration>

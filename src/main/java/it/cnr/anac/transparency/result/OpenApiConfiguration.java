@@ -22,6 +22,10 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.security.SecuritySchemes;
 import io.swagger.v3.oas.annotations.servers.Server;
+import org.springdoc.core.customizers.OpenApiCustomizer;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.info.BuildProperties;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -29,8 +33,7 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration
 @OpenAPIDefinition(
-    info = @Info(title = "Transparency Results Service", 
-    version = "0.3.6",
+    info = @Info(title = "Transparency Results Service",
     description = "Transparency Results Service si occupa di gestire i risultati delle verifiche di conformità "
         + "sulla legge della trasparenza del decreto legge 33/2013 per i siti degli enti pubblici italiani."),
     servers = {
@@ -47,5 +50,15 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfiguration {
 
   public static final String BEARER_AUTHENTICATION = "Bearer Authentication";
+
+  /**
+   * Imposta la versione della documentazione OpenAPI con quella del build-info,
+   * in modo da mantenerla sempre allineata alla versione del pom.xml.
+   */
+  @Bean
+  public OpenApiCustomizer versionOpenApiCustomizer(ObjectProvider<BuildProperties> buildProperties) {
+    return openApi -> buildProperties.ifAvailable(
+        properties -> openApi.getInfo().setVersion(properties.getVersion()));
+  }
 
 }
