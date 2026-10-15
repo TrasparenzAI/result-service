@@ -277,7 +277,20 @@
 				<groupId>com.google.cloud.tools</groupId>
 				<artifactId>jib-maven-plugin</artifactId>
 				<version>${jib.maven-plugin.version}</version>
+				<dependencies>
+					<!-- Esclude spring-boot-devtools dall'immagine Docker -->
+					<dependency>
+						<groupId>com.google.cloud.tools</groupId>
+						<artifactId>jib-spring-boot-extension-maven</artifactId>
+						<version>0.1.0</version>
+					</dependency>
+				</dependencies>
 				<configuration>
+					<pluginExtensions>
+						<pluginExtension>
+							<implementation>com.google.cloud.tools.jib.maven.extension.springboot.JibSpringBootExtension</implementation>
+						</pluginExtension>
+					</pluginExtensions>
 					<from><image>eclipse-temurin:17-jre@sha256:4d1030a58659e0fdd77bf0880f28095344f37785d020527340caf937c49e3098</image></from>
 					<container>
 						<creationTime>USE_CURRENT_TIMESTAMP</creationTime>
