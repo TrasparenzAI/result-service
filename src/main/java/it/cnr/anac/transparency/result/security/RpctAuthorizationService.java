@@ -17,6 +17,7 @@
 package it.cnr.anac.transparency.result.security;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.access.AccessDeniedException;
@@ -37,22 +38,48 @@ public class RpctAuthorizationService {
     private static final Set<String> UNRESTRICTED_ROLES =
             Set.of("ROLE_ADMIN", "ROLE_SUPERUSER", "ROLE_USER");
 
+    /**
+     * Verifica che un utente RPCT (senza ruoli che danno accesso a tutte le amministrazioni)
+     * stia richiedendo i dati di una delle amministrazioni presenti nel claim rpct_ipas.
+     */
     public void checkCodiceIpa(Jwt jwt, String codiceIpa) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_RPCT))) {
+        if (!isRestrictedRpct()) {
             return;
         }
-        boolean unrestricted = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(UNRESTRICTED_ROLES::contains);
-        if (unrestricted) {
-            return;
-        }
-
         List<String> rpctIpas = jwt.getClaimAsStringList(CLAIM_RPCT_IPAS);
         if (rpctIpas == null || !rpctIpas.contains(codiceIpa)) {
             throw new AccessDeniedException(
                     "RPCT non autorizzato per il codice IPA: " + codiceIpa);
         }
+    }
+
+    /**
+     * Come {@link #checkCodiceIpa(Jwt, String)}, ma con codice IPA facoltativo: per un utente
+     * RPCT il codice IPA è obbligatorio, altrimenti otterrebbe i dati di tutte le amministrazioni.
+     */
+    public void checkCodiceIpa(Jwt jwt, Optional<String> codiceIpa) {
+        if (!isRestrictedRpct()) {
+            return;
+        }
+        if (codiceIpa.isEmpty() || codiceIpa.get().isBlank()) {
+            throw new AccessDeniedException(
+                    "RPCT: il parametro codiceIpa è obbligatorio");
+        }
+        checkCodiceIpa(jwt, codiceIpa.get());
+    }
+
+    /**
+     * @return true se l'utente corrente ha il ruolo RPCT e nessuno dei ruoli che danno
+     *     accesso ai dati di tutte le amministrazioni.
+     */
+    private boolean isRestrictedRpct() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null
+                || !authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_RPCT))) {
+            return false;
+        }
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .noneMatch(UNRESTRICTED_ROLES::contains);
     }
 }

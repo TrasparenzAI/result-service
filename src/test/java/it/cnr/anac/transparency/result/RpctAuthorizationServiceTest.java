@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -125,5 +126,46 @@ class RpctAuthorizationServiceTest {
         setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_SUPERUSER");
 
         assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, "p_cs"));
+    }
+
+    @Test
+    void rpctCodiceIpaOpzionaleAutorizzato() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, Optional.of("cnr")));
+    }
+
+    @Test
+    void rpctCodiceIpaOpzionaleNonAutorizzato() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT");
+
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpa(jwt, Optional.of("p_cs")));
+    }
+
+    @Test
+    void rpctSenzaCodiceIpaNonAutorizzato() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT");
+
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpa(jwt, Optional.empty()));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpa(jwt, Optional.of(" ")));
+    }
+
+    @Test
+    void utenteNonRpctSenzaCodiceIpaPassa() {
+        var jwt = buildJwt(null);
+        setAuthWithRoles(jwt, "ROLE_USER");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, Optional.empty()));
+    }
+
+    @Test
+    void rpctConRuoloAdminSenzaCodiceIpaPassa() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_ADMIN");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, Optional.empty()));
     }
 }
