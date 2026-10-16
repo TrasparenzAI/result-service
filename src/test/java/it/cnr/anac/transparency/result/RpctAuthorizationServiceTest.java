@@ -102,4 +102,28 @@ class RpctAuthorizationServiceTest {
 
         assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, "qualsiasi"));
     }
+
+    @Test
+    void rpctConRuoloAdminPassaSuQualsiasiCodiceIpa() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_ADMIN");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, "p_cs"));
+    }
+
+    @Test
+    void rpctConRuoloUserPassaSuQualsiasiCodiceIpa() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_USER");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, "p_cs"));
+    }
+
+    @Test
+    void rpctConRuoloSuperuserPassaSenzaClaimRpctIpas() {
+        var jwt = buildJwt(null);
+        setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_SUPERUSER");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, "p_cs"));
+    }
 }

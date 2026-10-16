@@ -17,6 +17,8 @@
 package it.cnr.anac.transparency.result.security;
 
 import java.util.List;
+import java.util.Set;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,10 +30,22 @@ public class RpctAuthorizationService {
 
     private static final String ROLE_RPCT = "ROLE_RPCT";
     private static final String CLAIM_RPCT_IPAS = "rpct_ipas";
+    /**
+     * Ruoli che danno accesso ai risultati di tutte le amministrazioni:
+     * se l'utente ne possiede almeno uno il vincolo RPCT non si applica.
+     */
+    private static final Set<String> UNRESTRICTED_ROLES =
+            Set.of("ROLE_ADMIN", "ROLE_SUPERUSER", "ROLE_USER");
 
     public void checkCodiceIpa(Jwt jwt, String codiceIpa) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_RPCT))) {
+            return;
+        }
+        boolean unrestricted = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(UNRESTRICTED_ROLES::contains);
+        if (unrestricted) {
             return;
         }
 
