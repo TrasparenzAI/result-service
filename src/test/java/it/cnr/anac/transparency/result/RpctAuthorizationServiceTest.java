@@ -30,6 +30,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -125,5 +126,56 @@ class RpctAuthorizationServiceTest {
         setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_SUPERUSER");
 
         assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, "p_cs"));
+    }
+
+    @Test
+    void csvRpctCodiceIpaAutorizzato() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.of("cnr")));
+    }
+
+    @Test
+    void csvRpctCodiceIpaNonAutorizzato() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT");
+
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.of("p_cs")));
+    }
+
+    @Test
+    void csvRpctSenzaCodiceIpaNonAutorizzato() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT");
+
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.of(" ")));
+    }
+
+    @Test
+    void csvRpctConRuoloUserVincolatoAlleProprieAmministrazioni() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_USER");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.of("cnr")));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.of("p_cs")));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
+    }
+
+    @Test
+    void csvRpctConRuoloAdminSenzaCodiceIpaPassa() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_ADMIN");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
+    }
+
+    @Test
+    void csvAdminSenzaCodiceIpaPassa() {
+        var jwt = buildJwt(null);
+        setAuthWithRoles(jwt, "ROLE_ADMIN");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
     }
 }

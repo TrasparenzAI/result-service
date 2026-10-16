@@ -384,14 +384,19 @@ public class ResultController {
             description = "Le informazioni sono restituite in formato CSV, è possibile filtrare i risultati"
                     + "mostrati con i parameti disponibili e limitare i risultati utilizzando la paginazione'. "
                     + "La dimensione massima della pagina è di 100.000 elementi."
-                    + "È possibile utilizzare il parametro 'terse' per avere solo le informazioni principali esportate.")
+                    + "È possibile utilizzare il parametro 'terse' per avere solo le informazioni principali esportate. "
+                    + "Gli utenti con solo il ruolo RPCT devono indicare il codiceIpa di una delle "
+                    + "amministrazioni di cui sono RPCT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
-                    description = "Restituito un CSV con la lista dei risultati di validazione presenti.")
+                    description = "Restituito un CSV con la lista dei risultati di validazione presenti."),
+            @ApiResponse(responseCode = "403",
+                    description = "Utente RPCT senza codiceIpa o con codiceIpa di un'amministrazione non sua.")
     })
     @GetMapping(ApiRoutes.LIST_AS_CSV)
     public void listAsCsv(
             HttpServletResponse servletResponse,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam("idIpa") Optional<Long> idIpa,
             @RequestParam("codiceCategoria") Optional<String> codiceCategoria,
             @RequestParam("codiceFiscaleEnte") Optional<String> codiceFiscaleEnte,
@@ -404,6 +409,8 @@ public class ResultController {
             @RequestParam("createdAfter") Optional<LocalDate> createdAfter,
             @RequestParam("terse") Optional<Boolean> terse,
             @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
+
+        rpctAuthorizationService.checkCodiceIpaForCsv(jwt, codiceIpa);
 
         servletResponse.setContentType("text/csv");
         servletResponse.setHeader("Content-Disposition", "attachment; filename=\"results.csv\"");
