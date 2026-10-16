@@ -129,43 +129,53 @@ class RpctAuthorizationServiceTest {
     }
 
     @Test
-    void rpctCodiceIpaOpzionaleAutorizzato() {
+    void csvRpctCodiceIpaAutorizzato() {
         var jwt = buildJwt(List.of("cnr"));
         setAuthWithRoles(jwt, "ROLE_RPCT");
 
-        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, Optional.of("cnr")));
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.of("cnr")));
     }
 
     @Test
-    void rpctCodiceIpaOpzionaleNonAutorizzato() {
+    void csvRpctCodiceIpaNonAutorizzato() {
         var jwt = buildJwt(List.of("cnr"));
         setAuthWithRoles(jwt, "ROLE_RPCT");
 
-        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpa(jwt, Optional.of("p_cs")));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.of("p_cs")));
     }
 
     @Test
-    void rpctSenzaCodiceIpaNonAutorizzato() {
+    void csvRpctSenzaCodiceIpaNonAutorizzato() {
         var jwt = buildJwt(List.of("cnr"));
         setAuthWithRoles(jwt, "ROLE_RPCT");
 
-        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpa(jwt, Optional.empty()));
-        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpa(jwt, Optional.of(" ")));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.of(" ")));
     }
 
     @Test
-    void utenteNonRpctSenzaCodiceIpaPassa() {
-        var jwt = buildJwt(null);
-        setAuthWithRoles(jwt, "ROLE_USER");
+    void csvRpctConRuoloUserVincolatoAlleProprieAmministrazioni() {
+        var jwt = buildJwt(List.of("cnr"));
+        setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_USER");
 
-        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, Optional.empty()));
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.of("cnr")));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.of("p_cs")));
+        assertThrows(AccessDeniedException.class, () -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
     }
 
     @Test
-    void rpctConRuoloAdminSenzaCodiceIpaPassa() {
+    void csvRpctConRuoloAdminSenzaCodiceIpaPassa() {
         var jwt = buildJwt(List.of("cnr"));
         setAuthWithRoles(jwt, "ROLE_RPCT", "ROLE_ADMIN");
 
-        assertDoesNotThrow(() -> service.checkCodiceIpa(jwt, Optional.empty()));
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
+    }
+
+    @Test
+    void csvAdminSenzaCodiceIpaPassa() {
+        var jwt = buildJwt(null);
+        setAuthWithRoles(jwt, "ROLE_ADMIN");
+
+        assertDoesNotThrow(() -> service.checkCodiceIpaForCsv(jwt, Optional.empty()));
     }
 }

@@ -410,7 +410,7 @@ public class ResultController {
             @RequestParam("terse") Optional<Boolean> terse,
             @Parameter(required = false, allowEmptyValue = true) Sort sort) throws IOException {
 
-        rpctAuthorizationService.checkCodiceIpa(jwt, codiceIpa);
+        rpctAuthorizationService.checkCodiceIpaForCsv(jwt, codiceIpa);
 
         servletResponse.setContentType("text/csv");
         servletResponse.setHeader("Content-Disposition", "attachment; filename=\"results.csv\"");

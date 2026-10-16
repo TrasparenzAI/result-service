@@ -37,15 +37,41 @@ public class RpctAuthorizationService {
      */
     private static final Set<String> UNRESTRICTED_ROLES =
             Set.of("ROLE_ADMIN", "ROLE_SUPERUSER", "ROLE_USER");
+    /**
+     * Ruoli che possono esportare in CSV i risultati di tutte le amministrazioni
+     * (il ruolo USER non è abilitato all'export CSV).
+     */
+    private static final Set<String> CSV_UNRESTRICTED_ROLES =
+            Set.of("ROLE_ADMIN", "ROLE_SUPERUSER");
 
     /**
      * Verifica che un utente RPCT (senza ruoli che danno accesso a tutte le amministrazioni)
      * stia richiedendo i dati di una delle amministrazioni presenti nel claim rpct_ipas.
      */
     public void checkCodiceIpa(Jwt jwt, String codiceIpa) {
-        if (!isRestrictedRpct()) {
+        if (!isRestrictedRpct(UNRESTRICTED_ROLES)) {
             return;
         }
+        checkRpctIpas(jwt, codiceIpa);
+    }
+
+    /**
+     * Controllo per l'export CSV dei risultati. Un utente RPCT che non è ADMIN o SUPERUSER
+     * deve indicare il codice IPA (altrimenti otterrebbe i dati di tutte le amministrazioni)
+     * e questo deve essere tra quelli presenti nel claim rpct_ipas.
+     */
+    public void checkCodiceIpaForCsv(Jwt jwt, Optional<String> codiceIpa) {
+        if (!isRestrictedRpct(CSV_UNRESTRICTED_ROLES)) {
+            return;
+        }
+        if (codiceIpa.isEmpty() || codiceIpa.get().isBlank()) {
+            throw new AccessDeniedException(
+                    "RPCT: il parametro codiceIpa è obbligatorio");
+        }
+        checkRpctIpas(jwt, codiceIpa.get());
+    }
+
+    private void checkRpctIpas(Jwt jwt, String codiceIpa) {
         List<String> rpctIpas = jwt.getClaimAsStringList(CLAIM_RPCT_IPAS);
         if (rpctIpas == null || !rpctIpas.contains(codiceIpa)) {
             throw new AccessDeniedException(
@@ -54,25 +80,10 @@ public class RpctAuthorizationService {
     }
 
     /**
-     * Come {@link #checkCodiceIpa(Jwt, String)}, ma con codice IPA facoltativo: per un utente
-     * RPCT il codice IPA è obbligatorio, altrimenti otterrebbe i dati di tutte le amministrazioni.
+     * @return true se l'utente corrente ha il ruolo RPCT e nessuno dei ruoli indicati,
+     *     che danno accesso ai dati di tutte le amministrazioni.
      */
-    public void checkCodiceIpa(Jwt jwt, Optional<String> codiceIpa) {
-        if (!isRestrictedRpct()) {
-            return;
-        }
-        if (codiceIpa.isEmpty() || codiceIpa.get().isBlank()) {
-            throw new AccessDeniedException(
-                    "RPCT: il parametro codiceIpa è obbligatorio");
-        }
-        checkCodiceIpa(jwt, codiceIpa.get());
-    }
-
-    /**
-     * @return true se l'utente corrente ha il ruolo RPCT e nessuno dei ruoli che danno
-     *     accesso ai dati di tutte le amministrazioni.
-     */
-    private boolean isRestrictedRpct() {
+    private boolean isRestrictedRpct(Set<String> unrestrictedRoles) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null
                 || !authentication.getAuthorities().contains(new SimpleGrantedAuthority(ROLE_RPCT))) {
@@ -80,6 +91,6 @@ public class RpctAuthorizationService {
         }
         return authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
-                .noneMatch(UNRESTRICTED_ROLES::contains);
+                .noneMatch(unrestrictedRoles::contains);
     }
 }
